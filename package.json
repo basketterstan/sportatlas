@@ -1,8 +1,8 @@
 {
-  "name": "hoopsatlas",
+  "name": "sportatlas",
   "private": true,
   "type": "module",
-  "version": "1.5.4",
+  "version": "1.0.0",
   "scripts": {
     "dev": "tsx server.ts",
     "build": "vite build",

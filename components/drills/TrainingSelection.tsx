@@ -92,7 +92,7 @@ const TrainingSelection: React.FC<TrainingSelectionProps> = ({ hubDrills, onSele
     return combined.filter(d => d.focus === filter);
   }, [filter, hubDrills]);
 
-  const getIconForFocus = (focus: SkillFocus) => {
+  const getIconForFocus = (focus: SkillFocus | string) => {
     switch (focus) {
       case SkillFocus.SHOOTING: return <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="2"/></svg>;
       case SkillFocus.BALL_HANDLING: return <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><circle cx="12" cy="12" r="10"/></svg>;
@@ -103,7 +103,7 @@ const TrainingSelection: React.FC<TrainingSelectionProps> = ({ hubDrills, onSele
     }
   };
 
-  const getAccent = (focus: SkillFocus) => {
+  const getAccent = (focus: SkillFocus | string) => {
     switch (focus) {
       case SkillFocus.SHOOTING: return 'text-ha-brand border-ha-brand/20 bg-ha-brand/5';
       case SkillFocus.BALL_HANDLING: return 'text-purple-400 border-purple-500/20 bg-purple-500/5';

@@ -1,7 +1,7 @@
 {
-  "name": "HoopsAtlas",
-  "short_name": "HoopsAtlas",
-  "description": "Elite Basketball Tactical Playbook and AI Training Hub.",
+  "name": "SportAtlas",
+  "short_name": "SportAtlas",
+  "description": "Multi-Sport Tactical Playbook and AI Training Hub.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0b1224",

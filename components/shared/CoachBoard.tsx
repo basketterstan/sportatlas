@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { PlayerPosition, PlayerType, CourtType, DiagramLine, DiagramLineType, DiagramText } from '../../types';
+import { PlayerPosition, PlayerType, CourtType, DiagramLine, DiagramLineType, DiagramText, Sport } from '../../types';
 import CoachBoardTour, { COACH_BOARD_TOUR_KEY } from '../misc/CoachBoardTour';
 
 interface CoachBoardProps {
@@ -7,6 +7,7 @@ interface CoachBoardProps {
   initialLines?: DiagramLine[];
   initialTexts?: DiagramText[];
   initialCourtType?: CourtType;
+  sport?: Sport;
   onSave: (players: PlayerPosition[], lines: DiagramLine[], courtType: CourtType, texts: DiagramText[]) => void;
   onCancel: () => void;
   readOnly?: boolean;
@@ -23,13 +24,14 @@ interface DraggingLinePoint {
   type: 'start' | 'end' | 'control';
 }
 
-const CoachBoard: React.FC<CoachBoardProps> = ({ 
-  initialPlayers = [], 
+const CoachBoard: React.FC<CoachBoardProps> = ({
+  initialPlayers = [],
   initialLines = [],
   initialTexts = [],
   initialCourtType = 'half',
-  onSave, 
-  onCancel, 
+  sport = Sport.BASKETBALL,
+  onSave,
+  onCancel,
   readOnly = false,
   isFullscreen = false,
   isPrinting = false,
@@ -76,10 +78,23 @@ const CoachBoard: React.FC<CoachBoardProps> = ({
   const animationFrameRef = useRef<number | null>(null);
   const lastTickRef = useRef<number>(0);
   const isFull = courtType === 'full';
-  const isHorizontalLayout = isFull || isMobile;
-  const isMultiRow = isMobile && !isFull;
-  const viewWidth = isFull ? 188 : 100;
-  const viewHeight = isFull ? 100 : 94;
+  const isSoccer = courtType === 'field-full' || courtType === 'field-half';
+  const isVolleyball = courtType === 'volleyball-court';
+  const isTennis = courtType === 'tennis-court' || courtType === 'tennis-singles';
+  const isBasketball = courtType === 'half' || courtType === 'full';
+  const isHorizontalLayout = isFull || isSoccer || isTennis || isVolleyball || isMobile;
+  const isMultiRow = isMobile && !isFull && !isSoccer && !isTennis && !isVolleyball;
+  const viewWidth = isFull ? 188 : isSoccer || isTennis ? 200 : isVolleyball ? 180 : 100;
+  const viewHeight = isFull ? 100 : isSoccer ? 130 : isVolleyball || isTennis ? 90 : 94;
+
+  // Sport-specific background color
+  const bgColor = isPrinting ? '#ffffff' : (
+    isBasketball ? '#0f172a' :
+    isSoccer ? '#166534' :
+    isVolleyball ? '#1e3a5f' :
+    isTennis ? '#1a4731' :
+    '#0f172a'
+  );
 
   const boardRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -91,6 +106,7 @@ const CoachBoard: React.FC<CoachBoardProps> = ({
   const dashedMarkerId = isPrinting ? "arrow-dashed-print" : "arrow-dashed";
 
   const getNearestHoop = (x: number, y: number) => {
+    if (!isBasketball) return { x, y };
     if (isFull) {
       const leftHoop = { x: 11, y: 50 };
       const rightHoop = { x: 177, y: 50 };
@@ -562,6 +578,90 @@ const CoachBoard: React.FC<CoachBoardProps> = ({
     );
   };
 
+  const renderSoccerField = (half: boolean) => {
+    const stroke = isPrinting ? '#166534' : '#86efac';
+    const opacity = isPrinting ? 0.8 : 0.4;
+    if (half) {
+      // Half field: show only the right half (one goal end)
+      return (
+        <g pointerEvents="none" opacity={opacity}>
+          <rect x="5" y="5" width="190" height="120" fill="none" stroke={stroke} strokeWidth="1" />
+          <rect x="165" y="37" width="30" height="56" fill="none" stroke={stroke} strokeWidth="1" />
+          <rect x="185" y="52" width="10" height="26" fill="none" stroke={stroke} strokeWidth="0.7" />
+          <rect x="195" y="58" width="5" height="14" fill="none" stroke={stroke} strokeWidth="1" />
+          <circle cx="180" cy="65" r="10" fill="none" stroke={stroke} strokeWidth="1" />
+          <line x1="5" y1="65" x2="195" y2="65" stroke={stroke} strokeWidth="1" />
+        </g>
+      );
+    }
+    return (
+      <g pointerEvents="none" opacity={opacity}>
+        <rect x="5" y="5" width="190" height="120" fill="none" stroke={stroke} strokeWidth="1" />
+        <line x1="100" y1="5" x2="100" y2="125" stroke={stroke} strokeWidth="1" />
+        <circle cx="100" cy="65" r="15" fill="none" stroke={stroke} strokeWidth="1" />
+        <circle cx="100" cy="65" r="1" fill={stroke} />
+        <rect x="5" y="37" width="30" height="56" fill="none" stroke={stroke} strokeWidth="1" />
+        <rect x="165" y="37" width="30" height="56" fill="none" stroke={stroke} strokeWidth="1" />
+        <rect x="5" y="52" width="10" height="26" fill="none" stroke={stroke} strokeWidth="0.7" />
+        <rect x="185" y="52" width="10" height="26" fill="none" stroke={stroke} strokeWidth="0.7" />
+        <rect x="0" y="58" width="5" height="14" fill="none" stroke={stroke} strokeWidth="1" />
+        <rect x="195" y="58" width="5" height="14" fill="none" stroke={stroke} strokeWidth="1" />
+      </g>
+    );
+  };
+
+  const renderVolleyballCourt = () => {
+    const stroke = isPrinting ? '#1e3a5f' : '#93c5fd';
+    const netStroke = isPrinting ? '#000' : '#f8fafc';
+    const opacity = isPrinting ? 0.8 : 0.5;
+    return (
+      <g pointerEvents="none" opacity={opacity}>
+        <rect x="10" y="10" width="160" height="70" fill="none" stroke={stroke} strokeWidth="1" />
+        <line x1="90" y1="10" x2="90" y2="80" stroke={netStroke} strokeWidth="2" />
+        <line x1="70" y1="10" x2="70" y2="80" stroke={stroke} strokeWidth="0.7" strokeDasharray="3,3" />
+        <line x1="110" y1="10" x2="110" y2="80" stroke={stroke} strokeWidth="0.7" strokeDasharray="3,3" />
+      </g>
+    );
+  };
+
+  const renderTennisCourt = (singles: boolean) => {
+    const stroke = isPrinting ? '#1a4731' : '#86efac';
+    const netStroke = isPrinting ? '#000' : '#f8fafc';
+    const opacity = isPrinting ? 0.8 : 0.4;
+    return (
+      <g pointerEvents="none" opacity={opacity}>
+        {/* Doubles boundary */}
+        <rect x="5" y="5" width="190" height="80" fill="none" stroke={stroke} strokeWidth="1" />
+        {/* Singles sidelines */}
+        <line x1="20" y1="5" x2="20" y2="85" stroke={stroke} strokeWidth="0.8" />
+        <line x1="180" y1="5" x2="180" y2="85" stroke={stroke} strokeWidth="0.8" />
+        {/* Net */}
+        <line x1="5" y1="45" x2="195" y2="45" stroke={netStroke} strokeWidth="2" />
+        {/* Center service line */}
+        <line x1="100" y1="20" x2="100" y2="70" stroke={stroke} strokeWidth="0.8" />
+        {/* Service lines */}
+        <line x1="20" y1="20" x2="180" y2="20" stroke={stroke} strokeWidth="0.8" />
+        <line x1="20" y1="70" x2="180" y2="70" stroke={stroke} strokeWidth="0.8" />
+        {singles && (
+          <g>
+            {/* Fade out doubles alleys for singles view */}
+            <rect x="5" y="5" width="15" height="80" fill={isPrinting ? 'white' : '#1a4731'} opacity="0.5" />
+            <rect x="180" y="5" width="15" height="80" fill={isPrinting ? 'white' : '#1a4731'} opacity="0.5" />
+          </g>
+        )}
+      </g>
+    );
+  };
+
+  const renderFieldMarkings = () => {
+    if (courtType === 'field-full') return renderSoccerField(false);
+    if (courtType === 'field-half') return renderSoccerField(true);
+    if (courtType === 'volleyball-court') return renderVolleyballCourt();
+    if (courtType === 'tennis-court') return renderTennisCourt(false);
+    if (courtType === 'tennis-singles') return renderTennisCourt(true);
+    return null;
+  };
+
   const activePlayers = isPlaying ? animatedPlayers : players;
   const activeLines = isPlaying ? (animationSequence[currentFrameIdx]?.lines || []) : lines;
   const activeTexts = isPlaying ? (animationSequence[currentFrameIdx]?.texts || []) : texts;
@@ -744,9 +844,10 @@ const CoachBoard: React.FC<CoachBoardProps> = ({
             <marker id="arrow-red" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="3.5" markerHeight="3.5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444" /></marker>
           </defs>
 
-          <rect x="0" y="0" width={viewWidth} height={viewHeight} fill={isPrinting ? "#ffffff" : "#0f172a"} opacity={isPrinting ? 1 : 0.85} />
-          {isFull && <g opacity={isPrinting ? 0.8 : 0.2} pointerEvents="none"><line x1="94" y1="0" x2="94" y2="100" stroke={isPrinting ? "#334155" : "#94a3b8"} strokeWidth="1" /><circle cx="94" cy="50" r="10" fill="none" stroke={isPrinting ? "#334155" : "#94a3b8"} strokeWidth="1" /></g>}
-          {!isFull ? renderCourtMarkings('top') : <>{renderCourtMarkings('left')}{renderCourtMarkings('right')}</>}
+          <rect x="0" y="0" width={viewWidth} height={viewHeight} fill={bgColor} opacity={isPrinting ? 1 : 0.92} />
+          {isBasketball && isFull && <g opacity={isPrinting ? 0.8 : 0.2} pointerEvents="none"><line x1="94" y1="0" x2="94" y2="100" stroke={isPrinting ? "#334155" : "#94a3b8"} strokeWidth="1" /><circle cx="94" cy="50" r="10" fill="none" stroke={isPrinting ? "#334155" : "#94a3b8"} strokeWidth="1" /></g>}
+          {isBasketball && (!isFull ? renderCourtMarkings('top') : <>{renderCourtMarkings('left')}{renderCourtMarkings('right')}</>)}
+          {!isBasketball && renderFieldMarkings()}
 
           {allLines.map(l => {
             const isDeleting = activeTool === 'trash', curCol = isDeleting ? '#ef4444' : lineColor;

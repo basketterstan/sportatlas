@@ -261,8 +261,8 @@ const Settings: React.FC<SettingsProps> = ({ userProfile, onOpenAdmin, onNavigat
 
   const handleShareApp = async () => {
     const shareData = {
-      title: 'HoopsAtlas',
-      text: 'Check out HoopsAtlas - The ultimate AI playbook and coaching app for basketball!',
+      title: 'SportAtlas',
+      text: 'Check out SportAtlas - The ultimate AI playbook and coaching app for sports!',
       url: window.location.origin
     };
     
@@ -273,7 +273,7 @@ const Settings: React.FC<SettingsProps> = ({ userProfile, onOpenAdmin, onNavigat
         console.error('Share failed:', err);
       }
     } else {
-      const mailto = `mailto:?subject=Check out HoopsAtlas&body=Hey! I've been using HoopsAtlas to organize my basketball drills and plays. You should check it out: ${window.location.origin}`;
+      const mailto = `mailto:?subject=Check out SportAtlas&body=Hey! I've been using SportAtlas to organize my drills and plays. You should check it out: ${window.location.origin}`;
       window.location.href = mailto;
     }
   };
@@ -400,12 +400,12 @@ const Settings: React.FC<SettingsProps> = ({ userProfile, onOpenAdmin, onNavigat
            </button>
 
            <div className="pt-4 border-t border-slate-900 flex items-center justify-between">
-              <p className="text-[8px] text-slate-600 font-black uppercase tracking-widest">{t.shareHoopsAtlasOnSocial}</p>
+              <p className="text-[8px] text-slate-600 font-black uppercase tracking-widest">{t.shareSportAtlasOnSocial}</p>
               <div className="flex gap-3">
-                 <a href="https://twitter.com/intent/tweet?text=I%27m%20using%20HoopsAtlas%20to%20level%20up%20my%20coaching!%20Check%20it%20out:%20https://hoopsatlas.com" target="_blank" className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center text-slate-400 hover:text-white transition-colors">
+                 <a href="https://twitter.com/intent/tweet?text=I%27m%20using%20SportAtlas%20to%20level%20up%20my%20coaching!%20Check%20it%20out:%20https://sportatlas.com" target="_blank" className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center text-slate-400 hover:text-white transition-colors">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.84 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
                  </a>
-                 <a href="https://www.facebook.com/sharer/sharer.php?u=https://hoopsatlas.com" target="_blank" className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center text-slate-400 hover:text-white transition-colors">
+                 <a href="https://www.facebook.com/sharer/sharer.php?u=https://sportatlas.com" target="_blank" className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center text-slate-400 hover:text-white transition-colors">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
                  </a>
               </div>
@@ -479,7 +479,7 @@ const Settings: React.FC<SettingsProps> = ({ userProfile, onOpenAdmin, onNavigat
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2v20M2 12h20M12 12l8-8M12 12l-8 8"/></svg>
               </div>
               <div className="text-left">
-                <p className="text-sm font-black italic uppercase text-white">{t.aboutHoopsAtlas}</p>
+                <p className="text-sm font-black italic uppercase text-white">{t.aboutSportAtlas}</p>
                 <p className="text-[8px] text-slate-600 font-black uppercase tracking-widest">{t.ourOriginDirective}</p>
               </div>
             </div>
@@ -563,7 +563,7 @@ const Settings: React.FC<SettingsProps> = ({ userProfile, onOpenAdmin, onNavigat
           <span className="text-slate-800 text-[8px]">·</span>
           <button onClick={() => onNavigate('subscription-terms')} className="text-[8px] font-black text-slate-700 hover:text-slate-400 uppercase tracking-[0.3em] transition-colors">Terms</button>
         </div>
-        <p className="text-[7px] font-black text-slate-900 uppercase tracking-[0.6em]">HoopsAtlas v1.6.5</p>
+        <p className="text-[7px] font-black text-slate-900 uppercase tracking-[0.6em]">SportAtlas v1.0.0</p>
       </div>
     </div>
   );

@@ -1,4 +1,25 @@
 
+export enum Sport {
+  BASKETBALL = 'basketball',
+  SOCCER = 'soccer',
+  VOLLEYBALL = 'volleyball',
+  AMERICAN_FOOTBALL = 'american-football',
+  RUGBY = 'rugby',
+  TENNIS = 'tennis'
+}
+
+// Kept for backward compatibility — basketball-specific skill values
+export enum BasketballSkill {
+  SHOOTING = 'Shooting',
+  PASSING = 'Passing',
+  BALL_HANDLING = 'Ball-handling',
+  DEFENSE = 'Defense',
+  CONDITIONING = 'Conditioning',
+  TEAM_OFFENSE = 'Team offense',
+  TEAM_DEFENSE = 'Team defense'
+}
+
+// Alias so existing enum references still compile
 export enum SkillFocus {
   SHOOTING = 'Shooting',
   PASSING = 'Passing',
@@ -27,7 +48,7 @@ export enum SortOption {
 }
 
 export type PlayerType = 'home' | 'away' | 'ball' | 'cone' | 'coach';
-export type CourtType = 'half' | 'full';
+export type CourtType = 'half' | 'full' | 'field-full' | 'field-half' | 'volleyball-court' | 'tennis-court' | 'tennis-singles';
 export type DiagramLineType = 'run' | 'pass' | 'screen' | 'dribble' | 'shot' | 'draw';
 export type SubscriptionPlan = 'free' | 'basic' | 'pro' | 'club10' | 'club20' | 'clubUnlimited' | 'gameAnalysis';
 export type UserRole = 'coach' | 'player' | 'club' | 'parent';
@@ -226,9 +247,10 @@ export interface Drill {
   userId: string;
   clubId?: string | null;
   authorName?: string;
+  sport?: Sport;
   title: string;
   type: TacticalType;
-  focus: SkillFocus;
+  focus: SkillFocus | string;
   level: Level;
   duration: number;
   equipment?: string;
@@ -256,6 +278,7 @@ export interface TrainingSession {
   userId: string;
   clubId?: string | null;
   authorName?: string;
+  sport?: Sport;
   name: string;
   drillIds: string[];
   isPinned?: boolean;
@@ -270,6 +293,7 @@ export interface Team {
   id: string;
   clubId?: string | null;
   coachId: string;
+  sport?: Sport;
   name: string;
   category: Level;
   members: TeamMember[];

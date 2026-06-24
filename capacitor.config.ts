@@ -1,8 +1,8 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.hoopsatlas.app',
-  appName: 'HoopsAtlas',
+  appId: 'com.sportatlas.app',
+  appName: 'SportAtlas',
   webDir: 'dist',
   server: {
     androidScheme: 'https',
