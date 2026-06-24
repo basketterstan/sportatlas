@@ -1,0 +1,154 @@
+import React, { useState } from 'react';
+
+interface DonateModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  matchCode?: string;
+}
+
+const PRESET_AMOUNTS = [
+  { label: '€3', value: 300 },
+  { label: '€5', value: 500 },
+  { label: '€10', value: 1000 },
+  { label: '€20', value: 2000 },
+  { label: '€50', value: 5000 },
+];
+
+const DonateModal: React.FC<DonateModalProps> = ({ isOpen, onClose, matchCode }) => {
+  const [selected, setSelected] = useState<number | null>(500);
+  const [customInput, setCustomInput] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle');
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const effectiveAmount = (() => {
+    if (customInput !== '') {
+      const parsed = Math.round(parseFloat(customInput.replace(',', '.')) * 100);
+      return isNaN(parsed) || parsed < 100 ? null : parsed;
+    }
+    return selected;
+  })();
+
+  const displayLabel = (() => {
+    if (customInput !== '') {
+      const parsed = parseFloat(customInput.replace(',', '.'));
+      return isNaN(parsed) ? '?' : `€${parsed.toFixed(2)}`;
+    }
+    return PRESET_AMOUNTS.find(a => a.value === selected)?.label ?? '?';
+  })();
+
+  const handleCustomChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCustomInput(e.target.value);
+    setSelected(null);
+  };
+
+  const handlePresetClick = (value: number) => {
+    setSelected(value);
+    setCustomInput('');
+  };
+
+  const handleDonate = async () => {
+    if (!effectiveAmount) return;
+    setStatus('loading');
+    setErrorMsg(null);
+    try {
+      const base = (import.meta as any).env?.VITE_API_BASE_URL || '';
+      const res = await fetch(`${base}/api/stripe/donate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: effectiveAmount, matchCode }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.url) throw new Error(data.error || 'Onbekende fout');
+      window.location.assign(data.url);
+    } catch (err: any) {
+      setErrorMsg(err.message);
+      setStatus('error');
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-ha-bg/95 backdrop-blur-2xl z-[200] flex items-center justify-center p-6">
+      <div className="bg-[#0b1224] border border-slate-800 rounded-[3rem] p-10 w-full max-w-md text-center shadow-3xl relative animate-in zoom-in duration-300">
+        <button onClick={onClose} className="absolute top-6 right-6 text-slate-500 hover:text-white transition-colors">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+
+        <div className="space-y-8 py-4">
+          <div className="w-20 h-20 bg-ha-brand/10 rounded-[2.25rem] flex items-center justify-center mx-auto border border-ha-brand/20 shadow-xl">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="#06b6d4" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-3xl font-black text-white uppercase italic tracking-tight">Support HoopsAtlas</h3>
+            <p className="text-slate-400 text-xs font-bold uppercase tracking-widest leading-relaxed">
+              Bedankt! Jouw steun maakt het mogelijk<br/>om gratis wedstrijden te blijven filmen.
+            </p>
+          </div>
+
+          {/* Preset amounts */}
+          <div className="grid grid-cols-5 gap-3">
+            {PRESET_AMOUNTS.map(({ label, value }) => (
+              <button
+                key={value}
+                onClick={() => handlePresetClick(value)}
+                className={`py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all border ${
+                  selected === value && customInput === ''
+                    ? 'bg-ha-brand text-slate-950 border-ha-brand shadow-[0_0_20px_rgba(6,182,212,0.3)]'
+                    : 'bg-ha-bg border-slate-800 text-slate-300 hover:border-ha-brand/40'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* Custom amount */}
+          <div className="relative">
+            <span className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-sm">€</span>
+            <input
+              type="number"
+              min="1"
+              step="0.50"
+              placeholder="Eigen bedrag"
+              value={customInput}
+              onChange={handleCustomChange}
+              className={`w-full bg-ha-bg border rounded-2xl px-10 py-4 text-sm font-black text-white focus:outline-none transition-all placeholder:text-slate-700 placeholder:font-bold ${
+                customInput !== '' ? 'border-ha-brand shadow-[0_0_20px_rgba(6,182,212,0.15)]' : 'border-slate-800 focus:border-ha-brand/50'
+              }`}
+            />
+          </div>
+
+          {status === 'error' && (
+            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-[10px] text-red-500 font-black uppercase">
+              {errorMsg || 'Verbindingsfout'}
+            </div>
+          )}
+
+          {status === 'loading' ? (
+            <div className="space-y-4 py-2">
+              <div className="w-12 h-12 border-4 border-ha-brand border-t-transparent rounded-full animate-spin mx-auto shadow-[0_0_20px_rgba(6,182,212,0.2)]"></div>
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] animate-pulse">Betaalpagina laden...</p>
+            </div>
+          ) : (
+            <button
+              onClick={handleDonate}
+              disabled={!effectiveAmount}
+              className="w-full py-5 bg-ha-brand disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-black uppercase tracking-[0.3em] rounded-[2rem] transition-all active:scale-95 shadow-[0_20px_40px_rgba(6,182,212,0.2)] text-[12px] hover:shadow-[0_20px_40px_rgba(6,182,212,0.35)]"
+            >
+              Doneer {effectiveAmount ? displayLabel : '—'}
+            </button>
+          )}
+
+          <div className="flex items-center justify-center gap-3 opacity-40 pt-2 border-t border-slate-900">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <p className="text-[9px] text-slate-400 uppercase font-black tracking-[0.2em]">Stripe PCI-DSS Encryptie</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DonateModal;

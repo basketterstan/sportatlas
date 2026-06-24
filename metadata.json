@@ -1,0 +1,13 @@
+{
+  "name": "HoopsAtlas",
+  "short_name": "HoopsAtlas",
+  "description": "Elite Basketball Tactical Playbook and Training Hub.",
+  "requestFramePermissions": [
+    "geolocation",
+    "camera",
+    "microphone"
+  ],
+  "ios": {
+    "locationUsageDescription": "HoopsAtlas uses your location to find nearby basketball courts and sports facilities."
+  }
+}

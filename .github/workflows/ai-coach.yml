@@ -1,0 +1,31 @@
+name: Coach Marcus — Daily Posts
+
+on:
+  schedule:
+    # Runs every day at 09:00 UTC (11:00 Belgian time in summer)
+    - cron: '0 9 * * *'
+  workflow_dispatch: # allow manual trigger from GitHub UI
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: ai-coach
+        run: npm install
+
+      - name: Run Coach Marcus
+        working-directory: ai-coach
+        env:
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          COACH_EMAIL: ${{ secrets.COACH_EMAIL }}
+          COACH_PASSWORD: ${{ secrets.COACH_PASSWORD }}
+        run: node coach.js

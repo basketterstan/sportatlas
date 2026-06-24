@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Build output
+# dist/
+build/
+
+# Environment variables — NEVER commit these
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.DS_Store
+.vscode/
+.idea/
+
+# Capacitor
+ios/App/App/public/
+android/app/src/main/assets/public/
+
+# Claude Code local settings
+.claude/settings.local.json
+android/key.properties

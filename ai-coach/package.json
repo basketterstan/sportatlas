@@ -1,0 +1,12 @@
+{
+  "name": "hoopsatlas-ai-coach",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node coach.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "openai": "^4.52.0"
+  }
+}

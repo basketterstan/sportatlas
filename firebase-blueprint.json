@@ -1,0 +1,108 @@
+{
+  "entities": {
+    "PlayerProfile": {
+      "title": "Player Profile",
+      "description": "A scouting profile for a basketball player.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "position": { "type": "string" },
+        "height": { "type": "string" },
+        "weight": { "type": "string" },
+        "shootingHand": { "type": "string", "enum": ["Right", "Left", "Both"] },
+        "preferredDribbleMoves": { "type": "string" },
+        "notes": { "type": "string" },
+        "photoUrl": { "type": "string" },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["userId", "name"]
+    },
+    "PlayerMatchStat": {
+      "title": "Player Match Stat",
+      "description": "Statistics for a single player in a match.",
+      "type": "object",
+      "properties": {
+        "playerId": { "type": "string" },
+        "playerName": { "type": "string" },
+        "stats": {
+          "type": "object",
+          "description": "A map of stat names to values (e.g., {'PTS': 10, 'REB': 5})."
+        }
+      },
+      "required": ["playerId", "playerName", "stats"]
+    },
+    "MatchStats": {
+      "title": "Match Stats",
+      "description": "Statistics for a basketball match.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "matchTitle": { "type": "string" },
+        "date": { "type": "string" },
+        "teamName": { "type": "string" },
+        "opponentName": { "type": "string" },
+        "statDefinitions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "The list of stats being tracked for this match (e.g., ['PTS', 'REB'])."
+        },
+        "playerStats": {
+          "type": "array",
+          "items": { "$ref": "PlayerMatchStat" }
+        },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["userId", "matchTitle", "date", "statDefinitions"]
+    },
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "The profile and subscription data for a user.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "plan": { "type": "string", "enum": ["free", "basic", "pro", "club10", "club20", "clubUnlimited"] },
+        "role": { "type": "string", "enum": ["coach", "player", "club", "parent"] },
+        "subscriptionActive": { "type": "boolean" },
+        "managedCoachUids": { "type": "array", "items": { "type": "string" } },
+        "managedByUid": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Collection of user profiles and subscription data."
+    },
+    "/playerProfiles/{profileId}": {
+      "schema": "PlayerProfile",
+      "description": "Collection of player scouting profiles."
+    },
+    "/matchStats/{matchId}": {
+      "schema": "MatchStats",
+      "description": "Collection of match statistics."
+    },
+    "/customers/{uid}/checkout_sessions/{id}": {
+      "schema": "object",
+      "description": "Stripe Checkout Sessions created by the extension."
+    },
+    "/customers/{uid}/subscriptions/{id}": {
+      "schema": "object",
+      "description": "Stripe Subscriptions managed by the extension."
+    },
+    "/products/{id}": {
+      "schema": "object",
+      "description": "Stripe Products synced by the extension."
+    },
+    "/system_config/{id}": {
+      "schema": "object",
+      "description": "Global system configuration, announcements, and release info."
+    }
+  }
+}

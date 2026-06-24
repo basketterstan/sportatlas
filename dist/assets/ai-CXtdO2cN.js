@@ -1,0 +1,2 @@
+import{b as s}from"./index-BuZhzgDC.js";async function p(a){const r="https://us-central1-hoopsatlas-e16e4.cloudfunctions.net/api",n={"Content-Type":"application/json"},o=s.currentUser;if(o){const e=await o.getIdToken();n.Authorization=`Bearer ${e}`}const t=await fetch(`${r}/api/ai/chat`,{method:"POST",headers:n,body:JSON.stringify(a)});if(!t.ok){const e=await t.json().catch(()=>({error:"Unknown error"}));throw new Error(e.error||"AI request failed")}return(await t.json()).content}export{p as c};
+//# sourceMappingURL=ai-CXtdO2cN.js.map

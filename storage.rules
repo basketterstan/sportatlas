@@ -1,0 +1,44 @@
+
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && 
+             firestore.exists(/databases/(default)/documents/users/$(request.auth.uid)) && 
+             firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // Gebruikersprofielen
+    match /users/{userId}/{allPaths=**} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && request.auth.uid == userId;
+    }
+    
+    // Drill Media (Video & Document uploads)
+    match /drills/{userId}/{allPaths=**} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Feedback Attachments
+    match /feedback-attachments/{userId}/{allPaths=**} {
+      allow read: if isAdmin();
+      allow write: if isSignedIn() && request.auth.uid == userId;
+    }
+    
+    // Publieke assets
+    match /public/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
