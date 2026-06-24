@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, doc, updateDoc } from 'firebase/firestore';
 import { db, auth } from '../../utils/firebase';
 import { getTranslation } from '../../utils/i18n';
+import { Sport } from '../../types';
+import { SPORTS } from '../../data/sports';
 
 const STORAGE_KEY = 'ha_onboarding_v1';
 
@@ -22,21 +24,12 @@ interface OnboardingTutorialProps {
 const OnboardingTutorial: React.FC<OnboardingTutorialProps> = ({ show, onDone, onCreateDrill }) => {
   const [step, setStep] = useState(0);
   const [exiting, setExiting] = useState(false);
+  const [selectedSport, setSelectedSport] = useState<Sport | null>(null);
+  const [savingSport, setSavingSport] = useState(false);
 
   const t = getTranslation(null);
 
-  const steps = [
-    {
-      icon: (
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2">
-          <circle cx="12" cy="12" r="10"/>
-          <path d="M12 8v4l3 3"/>
-        </svg>
-      ),
-      tag: t.welcomeTag,
-      title: t.welcomeTitle,
-      body: t.welcomeBody,
-    },
+  const infoSteps = [
     {
       icon: (
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2">
@@ -87,10 +80,30 @@ const OnboardingTutorial: React.FC<OnboardingTutorialProps> = ({ show, onDone, o
     },
   ];
 
-  const current = steps[step];
+  // Total steps = 1 sport step + infoSteps
+  const totalSteps = 1 + infoSteps.length;
+  const isSportStep = step === 0;
+  const infoStep = isSportStep ? null : infoSteps[step - 1];
+  const isLast = !isSportStep && infoStep?.isLast;
 
-  const handleNext = () => {
-    if (step < steps.length - 1) {
+  const handleNext = async () => {
+    if (isSportStep) {
+      if (!selectedSport) return;
+      setSavingSport(true);
+      try {
+        const uid = auth.currentUser?.uid;
+        if (uid) {
+          await updateDoc(doc(db, 'users', uid), { sport: selectedSport });
+        }
+      } catch (e) {
+        console.error('Failed to save sport:', e);
+      } finally {
+        setSavingSport(false);
+      }
+      setStep(1);
+      return;
+    }
+    if (step < totalSteps - 1) {
       setStep(s => s + 1);
     } else {
       handleDone();
@@ -116,16 +129,18 @@ const OnboardingTutorial: React.FC<OnboardingTutorialProps> = ({ show, onDone, o
       <div className="bg-[#0b1224] border border-slate-800 rounded-[3rem] p-10 w-full max-w-sm text-center shadow-2xl relative">
 
         {/* Skip */}
-        <button
-          onClick={() => handleDone()}
-          className="absolute top-6 right-6 text-slate-600 hover:text-slate-400 text-[10px] font-black uppercase tracking-widest transition-colors"
-        >
-          {t.skip}
-        </button>
+        {!isSportStep && (
+          <button
+            onClick={() => handleDone()}
+            className="absolute top-6 right-6 text-slate-600 hover:text-slate-400 text-[10px] font-black uppercase tracking-widest transition-colors"
+          >
+            {t.skip}
+          </button>
+        )}
 
         {/* Step dots */}
         <div className="flex items-center justify-center gap-2 mb-8">
-          {steps.map((_, i) => (
+          {Array.from({ length: totalSteps }).map((_, i) => (
             <div
               key={i}
               className={`rounded-full transition-all duration-300 ${
@@ -139,49 +154,94 @@ const OnboardingTutorial: React.FC<OnboardingTutorialProps> = ({ show, onDone, o
           ))}
         </div>
 
-        {/* Icon */}
-        <div className="w-20 h-20 bg-indigo-600/10 border border-indigo-500/20 rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-xl">
-          {current.icon}
-        </div>
+        {/* Sport selection step */}
+        {isSportStep ? (
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.25em]">
+                Stap 1 van {totalSteps}
+              </p>
+              <h2 className="text-2xl font-black text-white uppercase italic tracking-tight">
+                Kies je sport
+              </h2>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                SportAtlas past alles aan op jouw sport — velden, oefeningen en AI.
+              </p>
+            </div>
 
-        {/* Tag */}
-        <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.25em] mb-2">
-          {current.tag}
-        </p>
+            <div className="grid grid-cols-2 gap-3">
+              {SPORTS.map(sport => (
+                <button
+                  key={sport.id}
+                  type="button"
+                  onClick={() => setSelectedSport(sport.id)}
+                  className={`py-4 px-3 rounded-2xl text-[9px] font-black uppercase tracking-wide transition-all flex flex-col items-center gap-2 border ${
+                    selectedSport === sport.id
+                      ? 'bg-indigo-600 border-indigo-400 text-white shadow-lg scale-[1.03]'
+                      : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500 hover:text-white'
+                  }`}
+                >
+                  <span className="text-3xl">{sport.emoji}</span>
+                  <span>{sport.labelNl}</span>
+                </button>
+              ))}
+            </div>
 
-        {/* Title */}
-        <h2 className="text-2xl font-black text-white uppercase italic tracking-tight mb-3">
-          {current.title}
-        </h2>
-
-        {/* Body */}
-        <p className="text-slate-400 text-sm leading-relaxed mb-10">
-          {current.body}
-        </p>
-
-        {/* CTA */}
-        {current.isLast ? (
-          <div className="space-y-3">
             <button
-              onClick={() => handleDone(true)}
-              className="w-full py-5 font-black uppercase tracking-[0.2em] rounded-2xl text-xs border-b-4 transition-all shadow-xl bg-emerald-600 hover:bg-emerald-500 border-emerald-800 text-white"
+              onClick={handleNext}
+              disabled={!selectedSport || savingSport}
+              className="w-full py-5 font-black uppercase tracking-[0.2em] rounded-2xl text-xs border-b-4 transition-all shadow-xl bg-indigo-600 hover:bg-indigo-500 border-indigo-800 text-white disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {t.createFirstDrill}
-            </button>
-            <button
-              onClick={() => handleDone()}
-              className="w-full py-3 font-black uppercase tracking-[0.2em] rounded-2xl text-xs border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 transition-all"
-            >
-              {t.close}
+              {savingSport ? 'Opslaan...' : 'Volgende →'}
             </button>
           </div>
         ) : (
-          <button
-            onClick={handleNext}
-            className="w-full py-5 font-black uppercase tracking-[0.2em] rounded-2xl text-xs border-b-4 transition-all shadow-xl bg-indigo-600 hover:bg-indigo-500 border-indigo-800 text-white"
-          >
-            {t.next}
-          </button>
+          <>
+            {/* Icon */}
+            <div className="w-20 h-20 bg-indigo-600/10 border border-indigo-500/20 rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-xl">
+              {infoStep!.icon}
+            </div>
+
+            {/* Tag */}
+            <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.25em] mb-2">
+              {infoStep!.tag}
+            </p>
+
+            {/* Title */}
+            <h2 className="text-2xl font-black text-white uppercase italic tracking-tight mb-3">
+              {infoStep!.title}
+            </h2>
+
+            {/* Body */}
+            <p className="text-slate-400 text-sm leading-relaxed mb-10">
+              {infoStep!.body}
+            </p>
+
+            {/* CTA */}
+            {isLast ? (
+              <div className="space-y-3">
+                <button
+                  onClick={() => handleDone(true)}
+                  className="w-full py-5 font-black uppercase tracking-[0.2em] rounded-2xl text-xs border-b-4 transition-all shadow-xl bg-emerald-600 hover:bg-emerald-500 border-emerald-800 text-white"
+                >
+                  {t.createFirstDrill}
+                </button>
+                <button
+                  onClick={() => handleDone()}
+                  className="w-full py-3 font-black uppercase tracking-[0.2em] rounded-2xl text-xs border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 transition-all"
+                >
+                  {t.close}
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={handleNext}
+                className="w-full py-5 font-black uppercase tracking-[0.2em] rounded-2xl text-xs border-b-4 transition-all shadow-xl bg-indigo-600 hover:bg-indigo-500 border-indigo-800 text-white"
+              >
+                {t.next}
+              </button>
+            )}
+          </>
         )}
       </div>
     </div>
