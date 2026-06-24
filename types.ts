@@ -48,7 +48,7 @@ export enum SortOption {
 }
 
 export type PlayerType = 'home' | 'away' | 'ball' | 'cone' | 'coach';
-export type CourtType = 'half' | 'full' | 'field-full' | 'field-half' | 'volleyball-court' | 'tennis-court' | 'tennis-singles';
+export type CourtType = 'half' | 'full' | 'field-full' | 'field-half' | 'volleyball-court' | 'tennis-court' | 'tennis-singles' | 'football-full' | 'football-half' | 'rugby-full' | 'rugby-half';
 export type DiagramLineType = 'run' | 'pass' | 'screen' | 'dribble' | 'shot' | 'draw';
 export type SubscriptionPlan = 'free' | 'basic' | 'pro' | 'club10' | 'club20' | 'clubUnlimited' | 'gameAnalysis';
 export type UserRole = 'coach' | 'player' | 'club' | 'parent';

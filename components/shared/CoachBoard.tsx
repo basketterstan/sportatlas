@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { PlayerPosition, PlayerType, CourtType, DiagramLine, DiagramLineType, DiagramText, Sport } from '../../types';
 import CoachBoardTour, { COACH_BOARD_TOUR_KEY } from '../misc/CoachBoardTour';
+import { getSportConfig } from '../../data/sports';
 
 interface CoachBoardProps {
   initialPlayers?: PlayerPosition[];
@@ -77,20 +78,33 @@ const CoachBoard: React.FC<CoachBoardProps> = ({
   const playbackTimerRef = useRef<any>(null);
   const animationFrameRef = useRef<number | null>(null);
   const lastTickRef = useRef<number>(0);
+  const sportConfig = getSportConfig(sport);
+  const sportCourtTypes = sportConfig.courtTypes.map(c => c.value as CourtType);
+
+  const cycleCourtType = () => {
+    const idx = sportCourtTypes.indexOf(courtType);
+    const next = sportCourtTypes[(idx + 1) % sportCourtTypes.length];
+    setCourtType(next);
+  };
+
   const isFull = courtType === 'full';
   const isSoccer = courtType === 'field-full' || courtType === 'field-half';
   const isVolleyball = courtType === 'volleyball-court';
   const isTennis = courtType === 'tennis-court' || courtType === 'tennis-singles';
+  const isFootball = courtType === 'football-full' || courtType === 'football-half';
+  const isRugby = courtType === 'rugby-full' || courtType === 'rugby-half';
   const isBasketball = courtType === 'half' || courtType === 'full';
-  const isHorizontalLayout = isFull || isSoccer || isTennis || isVolleyball || isMobile;
-  const isMultiRow = isMobile && !isFull && !isSoccer && !isTennis && !isVolleyball;
-  const viewWidth = isFull ? 188 : isSoccer || isTennis ? 200 : isVolleyball ? 180 : 100;
-  const viewHeight = isFull ? 100 : isSoccer ? 130 : isVolleyball || isTennis ? 90 : 94;
+  const isWideField = isSoccer || isTennis || isFootball || isRugby;
+  const isHorizontalLayout = isFull || isWideField || isVolleyball || isMobile;
+  const isMultiRow = isMobile && !isFull && !isWideField && !isVolleyball;
+  const viewWidth = isFull ? 188 : isWideField || isTennis ? 200 : isVolleyball ? 180 : 100;
+  const viewHeight = isFull ? 100 : isSoccer ? 130 : isFootball ? 110 : isRugby ? 130 : isVolleyball || isTennis ? 90 : 94;
 
-  // Sport-specific background color
   const bgColor = isPrinting ? '#ffffff' : (
     isBasketball ? '#0f172a' :
-    isSoccer ? '#166534' :
+    isSoccer ? '#14532d' :
+    isFootball ? '#14532d' :
+    isRugby ? '#14532d' :
     isVolleyball ? '#1e3a5f' :
     isTennis ? '#1a4731' :
     '#0f172a'
@@ -653,12 +667,100 @@ const CoachBoard: React.FC<CoachBoardProps> = ({
     );
   };
 
+  const renderAmericanFootballField = (half: boolean) => {
+    const stroke = isPrinting ? '#14532d' : '#86efac';
+    const op = isPrinting ? 0.8 : 0.45;
+    // viewBox 0 0 200 110 — field runs left-right
+    // Full: 10yd end zones + 80yd playing field (100yd total). Half: one side only.
+    // Scale: 200 units = 120 yards, 1 yard ≈ 1.667 units
+    // End zones: ~13.3 units each. Playing field: ~133.3 units.
+    const ez = 13; // end zone width
+    const fw = 200; const fh = 100;
+    const yardLines = half
+      ? [0, 10, 20, 30, 40, 50].map(y => ez + y * 1.333)
+      : [10, 20, 30, 40, 50, 40, 30, 20, 10].map((y, i) => ez + (i * 10) * 1.333);
+    const allLines = half
+      ? [0, 10, 20, 30, 40, 50].map((_, i) => i)
+      : [0,1,2,3,4,5,6,7,8].map(i => i);
+
+    return (
+      <g pointerEvents="none" opacity={op}>
+        {/* Outer boundary */}
+        <rect x="5" y="5" width="190" height={fh} fill="none" stroke={stroke} strokeWidth="1.2" />
+        {/* End zones */}
+        <rect x="5" y="5" width={ez} height={fh} fill={stroke} fillOpacity="0.08" stroke={stroke} strokeWidth="0.8" />
+        {!half && <rect x={200 - ez} y="5" width={ez} height={fh} fill={stroke} fillOpacity="0.08" stroke={stroke} strokeWidth="0.8" />}
+        {/* Yard lines every 10 yards */}
+        {Array.from({ length: half ? 6 : 9 }, (_, i) => {
+          const x = 5 + ez + i * (half ? (190 - ez) / 5 : (190 - 2 * ez) / 8);
+          return <line key={i} x1={x} y1="5" x2={x} y2={5 + fh} stroke={stroke} strokeWidth={i === (half ? 5 : 4) ? 1 : 0.6} />;
+        })}
+        {/* Hash marks (every 5 yards = half intervals) */}
+        {Array.from({ length: half ? 11 : 17 }, (_, i) => {
+          const x = 5 + ez + i * (half ? (190 - ez) / 10 : (190 - 2 * ez) / 16);
+          return (
+            <g key={`h${i}`}>
+              <line x1={x} y1={5 + fh * 0.35} x2={x} y2={5 + fh * 0.4} stroke={stroke} strokeWidth="0.5" />
+              <line x1={x} y1={5 + fh * 0.6} x2={x} y2={5 + fh * 0.65} stroke={stroke} strokeWidth="0.5" />
+            </g>
+          );
+        })}
+        {/* Goal posts */}
+        <line x1="5" y1={5 + fh / 2} x2="0" y2={5 + fh / 2} stroke={stroke} strokeWidth="1.5" />
+        <line x1="0" y1={5 + fh / 2 - 8} x2="0" y2={5 + fh / 2 + 8} stroke={stroke} strokeWidth="1.5" />
+        {!half && <>
+          <line x1="195" y1={5 + fh / 2} x2="200" y2={5 + fh / 2} stroke={stroke} strokeWidth="1.5" />
+          <line x1="200" y1={5 + fh / 2 - 8} x2="200" y2={5 + fh / 2 + 8} stroke={stroke} strokeWidth="1.5" />
+        </>}
+      </g>
+    );
+  };
+
+  const renderRugbyPitch = (half: boolean) => {
+    const stroke = isPrinting ? '#14532d' : '#86efac';
+    const op = isPrinting ? 0.8 : 0.45;
+    // viewBox 0 0 200 130 — pitch runs left-right
+    // Full 100m pitch: in-goal (5m each side), 22m lines, 10m lines, halfway
+    // Scale: 200 = 110m → 1m ≈ 1.818 units. In-goal ≈ 9 units, 22m ≈ 40 units, 10m ≈ 18 units
+    const ig = 9; // in-goal
+    const m22 = 40;
+    const m10 = 18;
+    const mid = 100;
+    return (
+      <g pointerEvents="none" opacity={op}>
+        {/* Outer boundary */}
+        <rect x="5" y="5" width="190" height="120" fill="none" stroke={stroke} strokeWidth="1.2" />
+        {/* In-goal areas */}
+        <rect x="5" y="5" width={ig} height="120" fill={stroke} fillOpacity="0.08" stroke={stroke} strokeWidth="0.8" />
+        {!half && <rect x={200 - ig} y="5" width={ig} height="120" fill={stroke} fillOpacity="0.08" stroke={stroke} strokeWidth="0.8" />}
+        {/* 22m lines */}
+        <line x1={5 + ig + m22} y1="5" x2={5 + ig + m22} y2="125" stroke={stroke} strokeWidth="0.8" />
+        {!half && <line x1={200 - ig - m22} y1="5" x2={200 - ig - m22} y2="125" stroke={stroke} strokeWidth="0.8" />}
+        {/* 10m lines */}
+        <line x1={mid - m10} y1="5" x2={mid - m10} y2="125" stroke={stroke} strokeWidth="0.6" strokeDasharray="4,3" />
+        {!half && <line x1={mid + m10} y1="5" x2={mid + m10} y2="125" stroke={stroke} strokeWidth="0.6" strokeDasharray="4,3" />}
+        {/* Halfway */}
+        {!half && <line x1={mid} y1="5" x2={mid} y2="125" stroke={stroke} strokeWidth="1" />}
+        {/* Try lines */}
+        <line x1={5 + ig} y1="5" x2={5 + ig} y2="125" stroke={stroke} strokeWidth="1" />
+        {!half && <line x1={200 - ig} y1="5" x2={200 - ig} y2="125" stroke={stroke} strokeWidth="1" />}
+        {/* Goal posts */}
+        <line x1={5 + ig} y1={65 - 6} x2={5 + ig} y2={65 + 6} stroke={stroke} strokeWidth="1.5" />
+        {!half && <line x1={200 - ig} y1={65 - 6} x2={200 - ig} y2={65 + 6} stroke={stroke} strokeWidth="1.5" />}
+      </g>
+    );
+  };
+
   const renderFieldMarkings = () => {
     if (courtType === 'field-full') return renderSoccerField(false);
     if (courtType === 'field-half') return renderSoccerField(true);
     if (courtType === 'volleyball-court') return renderVolleyballCourt();
     if (courtType === 'tennis-court') return renderTennisCourt(false);
     if (courtType === 'tennis-singles') return renderTennisCourt(true);
+    if (courtType === 'football-full') return renderAmericanFootballField(false);
+    if (courtType === 'football-half') return renderAmericanFootballField(true);
+    if (courtType === 'rugby-full') return renderRugbyPitch(false);
+    if (courtType === 'rugby-half') return renderRugbyPitch(true);
     return null;
   };
 
@@ -1135,7 +1237,7 @@ const CoachBoard: React.FC<CoachBoardProps> = ({
                       <span className="text-[6px] font-black text-indigo-500 uppercase">{isPlaying ? 'STOP' : 'PLAY'}</span>
                     </div>
                   )}
-                  <button onClick={() => setCourtType('full')} className="w-9 h-9 rounded-xl flex items-center justify-center border-2 transition-all bg-slate-900 border-slate-800 text-slate-500">
+                  <button onClick={cycleCourtType} className="w-9 h-9 rounded-xl flex items-center justify-center border-2 transition-all bg-slate-900 border-slate-800 text-slate-500">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><rect width="18" height="12" x="3" y="6" rx="2"/><path d="M12 6v12"/></svg>
                   </button>
                   <button onClick={saveAction} className="w-10 h-10 bg-emerald-600 text-white rounded-xl flex items-center justify-center shadow-2xl active:scale-95 transition-all">
@@ -1196,7 +1298,7 @@ const CoachBoard: React.FC<CoachBoardProps> = ({
               </div>
             </div>
             <div id="cb-tour-save" className={`flex gap-2 md:gap-5 flex-shrink-0 ${isHorizontalLayout ? 'flex-row' : 'flex-col mt-auto pb-8'}`}>
-              <button onClick={() => setCourtType(courtType === 'half' ? 'full' : 'half')} className={`${isHorizontalLayout ? 'w-9 h-9 md:w-10 md:h-10' : 'w-12 h-12'} rounded-xl flex items-center justify-center border-2 transition-all ${courtType === 'full' ? 'bg-indigo-600 border-indigo-400 text-white shadow-xl' : 'bg-slate-900 border-slate-800 text-slate-500'}`}>
+              <button onClick={cycleCourtType} title={`Switch field (${courtType})`} className={`${isHorizontalLayout ? 'w-9 h-9 md:w-10 md:h-10' : 'w-12 h-12'} rounded-xl flex items-center justify-center border-2 transition-all ${sportCourtTypes.length > 1 && sportCourtTypes.indexOf(courtType) > 0 ? 'bg-indigo-600 border-indigo-400 text-white shadow-xl' : 'bg-slate-900 border-slate-800 text-slate-500'}`}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><rect width="18" height="12" x="3" y="6" rx="2"/><path d="M12 6v12"/></svg>
               </button>
               <button onClick={saveAction} className={`${isHorizontalLayout ? 'w-9 h-9 md:w-12 md:h-12' : 'w-12 h-12 md:w-14 md:h-14'} bg-emerald-600 text-white rounded-xl flex items-center justify-center shadow-2xl active:scale-95 transition-all`}>

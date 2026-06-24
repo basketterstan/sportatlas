@@ -385,11 +385,12 @@ const DrillForm: React.FC<DrillFormProps> = ({
   if (activeBoardIndex !== null && boards?.[activeBoardIndex]) {
     return (
       <div className="fixed inset-0 z-[100] bg-ha-bg">
-        <CoachBoard 
+        <CoachBoard
           initialPlayers={boards[activeBoardIndex].players || []}
           initialLines={boards[activeBoardIndex].lines || []}
           initialTexts={boards[activeBoardIndex].texts || []}
-          initialCourtType={boards[activeBoardIndex].courtType || 'half'}
+          initialCourtType={(boards[activeBoardIndex].courtType || defaultCourtType) as CourtType}
+          sport={userSport}
           onSave={(players, lines, courtTypeVal, texts) => {
             const newBoards = [...boards];
             newBoards[activeBoardIndex] = { ...newBoards[activeBoardIndex], players, lines, texts, courtType: courtTypeVal };

@@ -79,10 +79,10 @@ export const SPORTS: SportConfig[] = [
     labelEs: 'Fútbol Americano',
     emoji: '🏈',
     skills: ['Passing', 'Rushing', 'Blocking', 'Defense', 'Special teams', 'Conditioning', 'Playbook'],
-    defaultCourtType: 'field-full',
+    defaultCourtType: 'football-full',
     courtTypes: [
-      { value: 'field-full', labelEn: 'Full field', labelNl: 'Heel veld' },
-      { value: 'field-half', labelEn: 'Half field', labelNl: 'Half veld' },
+      { value: 'football-full', labelEn: 'Full field', labelNl: 'Heel veld' },
+      { value: 'football-half', labelEn: 'Half field', labelNl: 'Half veld' },
     ],
     playerTypes: [
       { value: 'home', labelEn: 'Offense', color: '#ef4444' },
@@ -99,10 +99,10 @@ export const SPORTS: SportConfig[] = [
     labelEs: 'Rugby',
     emoji: '🏉',
     skills: ['Passing', 'Kicking', 'Tackling', 'Scrum', 'Lineout', 'Defense', 'Conditioning'],
-    defaultCourtType: 'field-full',
+    defaultCourtType: 'rugby-full',
     courtTypes: [
-      { value: 'field-full', labelEn: 'Full pitch', labelNl: 'Heel veld' },
-      { value: 'field-half', labelEn: 'Half pitch', labelNl: 'Half veld' },
+      { value: 'rugby-full', labelEn: 'Full pitch', labelNl: 'Heel veld' },
+      { value: 'rugby-half', labelEn: 'Half pitch', labelNl: 'Half veld' },
     ],
     playerTypes: [
       { value: 'home', labelEn: 'Home', color: '#ef4444' },
