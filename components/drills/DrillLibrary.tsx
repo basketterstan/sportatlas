@@ -1,9 +1,10 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { Drill, SkillFocus, Level, SortOption, ViewState, SubscriptionPlan, UserRole, TacticalType, UserProfile } from '../../types';
+import { Drill, SkillFocus, Level, SortOption, ViewState, SubscriptionPlan, UserRole, TacticalType, UserProfile, Sport } from '../../types';
 import AdBanner from '../shared/AdBanner';
 import { getTranslation } from '../../utils/i18n';
 import { auth } from '../../utils/firebase';
+import { SPORTS, getSportConfig } from '../../data/sports';
 
 interface DrillLibraryProps {
   isCommunity?: boolean;
@@ -73,6 +74,9 @@ const DrillLibrary: React.FC<DrillLibraryProps> = ({
   const drillLimit = isPro ? Infinity : (isBasic ? 20 : 3);
   const drillLimitReached = personalDrillsCount >= drillLimit;
 
+  const userSport: Sport = userProfile?.sport ?? Sport.BASKETBALL;
+  const sportConfig = getSportConfig(userSport);
+
   const clubDrills = useMemo(() => {
     return drills.filter(d => d.clubId && d.clubId === clubId && (d.type || 'drill') === activeTacType);
   }, [drills, clubId, activeTacType]);
@@ -80,10 +84,16 @@ const DrillLibrary: React.FC<DrillLibraryProps> = ({
   const processedDrills = useMemo(() => {
     const source = showClubLibrary ? clubDrills : drills;
     let result = source.filter(d => (d.type || 'drill') === activeTacType);
+
+    // Filter by sport: show drills matching user's sport, or legacy drills (no sport = basketball)
+    result = result.filter(d =>
+      d.sport === userSport || (!d.sport && userSport === Sport.BASKETBALL)
+    );
+
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
-      result = result.filter(d => 
-        (d.title || '').toLowerCase().includes(q) || 
+      result = result.filter(d =>
+        (d.title || '').toLowerCase().includes(q) ||
         d.tags?.some(t => (t || '').toLowerCase().includes(q))
       );
     }
@@ -100,16 +110,14 @@ const DrillLibrary: React.FC<DrillLibraryProps> = ({
     }
 
     return [...result].sort((a, b) => {
-      // Pinned items always first
       if (a.isPinned && !b.isPinned) return -1;
       if (!a.isPinned && b.isPinned) return 1;
-
       if (sortBy === SortOption.AZ) return a.title.localeCompare(b.title);
       if (sortBy === SortOption.OLDEST) return (a.createdAt || 0) - (b.createdAt || 0);
       if (sortBy === SortOption.MOST_LIKES) return (b.likes || 0) - (a.likes || 0);
       return (b.createdAt || 0) - (a.createdAt || 0);
     });
-  }, [drills, activeTacType, searchQuery, filterFocus, filterLevel, showFavoritesOnly, sortBy]);
+  }, [drills, activeTacType, searchQuery, filterFocus, filterLevel, showFavoritesOnly, sortBy, userSport]);
 
   const handleDrillClick = (drillId: string, index: number) => {
     if (isCommunity && !isPaid && index >= 3 && isLoggedIn) {
@@ -125,11 +133,14 @@ const DrillLibrary: React.FC<DrillLibraryProps> = ({
     <div className="space-y-10 animate-in fade-in duration-500">
       <div className="flex flex-col gap-6">
         <div className="flex items-center justify-between">
-          <button onClick={() => onSwitchView('home')} className="flex items-center gap-2 text-slate-500 font-black text-[9px] uppercase tracking-[0.2em] hover:text-white transition-all active:scale-95">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="15 18 9 12 15 6"></polyline></svg>
-            {t.dashboardBack}
-          </button>
-          
+          <div className="flex items-center gap-3">
+            <button onClick={() => onSwitchView('home')} className="flex items-center gap-2 text-slate-500 font-black text-[9px] uppercase tracking-[0.2em] hover:text-white transition-all active:scale-95">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              {t.dashboardBack}
+            </button>
+            <span className="text-xl" title={sportConfig.labelEn}>{sportConfig.emoji}</span>
+          </div>
+
           {canCreate && (
             <div className="relative group">
               {drillLimitReached && (

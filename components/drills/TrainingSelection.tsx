@@ -2,7 +2,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db, auth } from '../../utils/firebase';
-import { Drill, SkillFocus, Level, DrillAssignment, UserProfile } from '../../types';
+import { Drill, SkillFocus, Level, DrillAssignment, UserProfile, Sport } from '../../types';
+import { FOUNDATION_UNITS, getFoundationDrillsBySport } from '../../data/foundationDrills';
+import { getSportConfig } from '../../data/sports';
 
 interface TrainingSelectionProps {
   hubDrills: Drill[];
@@ -11,42 +13,12 @@ interface TrainingSelectionProps {
   userProfile?: UserProfile | null;
 }
 
-const SOLO_PROTOCOL_DATABASE: Drill[] = [
-  { id: 's-form-1', userId: 'system', title: 'One-Hand Form Logic', type: 'drill', focus: SkillFocus.SHOOTING, level: Level.U10, duration: 10, steps: ["Stand 2 feet from the rim.", "Place your shooting hand under the ball.", "Keep your guide hand behind your back.", "Snap your wrist and hold the follow-through until the ball hits the floor."], tips: "Focus on the 'goose neck' finish and high arc.", tags: ['solo', 'shooting'], favorite: false, createdAt: 1, updatedAt: 1, boards: [] },
-  { id: 's-mikan-1', userId: 'system', title: 'Classic Mikan Drill', type: 'drill', focus: SkillFocus.SHOOTING, level: Level.U12, duration: 5, steps: ["Start under the basket.", "Explode up for a right-hand layup on the right side.", "Catch the ball out of the net without it hitting the floor.", "Immediately explode for a left-hand layup on the left side.", "Maintain a continuous rhythm."], tips: "Keep the ball above your chin at all times.", tags: ['solo', 'finishing'], favorite: false, createdAt: 1, updatedAt: 1, boards: [] },
-  { id: 's-swish-10', userId: 'system', title: 'The Swish Protocol', type: 'drill', focus: SkillFocus.SHOOTING, level: Level.U14, duration: 15, steps: ["Start 3 feet from the basket.", "You must make 2 swishes in a row to move back one step.", "If the ball hits the rim but goes in, it does not count.", "Goal: Reach the Free Throw line."], tips: "Arc is your best friend for swishes.", tags: ['solo', 'shooting'], favorite: false, createdAt: 1, updatedAt: 1, boards: [] },
-  { id: 's-elbow-50', userId: 'system', title: 'Elbow Jumper 50', type: 'drill', focus: SkillFocus.SHOOTING, level: Level.U16, duration: 15, steps: ["Start at the left elbow.", "Shoot, rebound your own ball.", "Sprint to the right elbow and shoot.", "Repeat until you make 50 shots total."], tips: "Stay low on the catch and rise straight up.", tags: ['solo', 'stamina'], favorite: false, createdAt: 1, updatedAt: 1, boards: [] },
-  { id: 'b-pound-1', userId: 'system', title: 'High-Low Pound', type: 'drill', focus: SkillFocus.BALL_HANDLING, level: Level.U10, duration: 5, steps: ["Dribble as hard as possible at shoulder height for 30s.", "Immediately drop to ankle height for 30s.", "Switch hands and repeat.", "Keep your eyes up at the horizon."], tips: "If you don't lose the ball, you aren't going hard enough.", tags: ['solo', 'handling'], favorite: false, createdAt: 1, updatedAt: 1, boards: [] },
-  { id: 'b-cross-static', userId: 'system', title: 'Static Kill Cross', type: 'drill', focus: SkillFocus.BALL_HANDLING, level: Level.U12, duration: 8, steps: ["Get into a wide, low stance.", "Dribble the ball from right to left as wide as possible.", "The ball should stay below your knees.", "Perform 50 reps without stopping."], tips: "Shift your weight with the ball.", tags: ['solo', 'handling'], favorite: false, createdAt: 1, updatedAt: 1, boards: [] },
-  { id: 'b-legs-spider', userId: 'system', title: 'Spider Rhythm', type: 'drill', focus: SkillFocus.BALL_HANDLING, level: Level.U16, duration: 5, steps: ["Position the ball in front of you.", "Right hand tap, Left hand tap (front).", "Reach behind your legs.", "Right hand tap, Left hand tap (back).", "Repeat as fast as possible."], tips: "Find a musical rhythm in your taps.", tags: ['solo', 'speed'], favorite: false, createdAt: 1, updatedAt: 1, boards: [] },
-  { id: 'b-wrap-series', userId: 'system', title: 'Full Body Wraps', type: 'drill', focus: SkillFocus.BALL_HANDLING, level: Level.U10, duration: 3, steps: ["Wrap the ball around your head 10 times.", "Wrap around your waist 10 times.", "Wrap around both ankles 10 times.", "Switch directions and repeat."], tips: "Move the ball, not your body.", tags: ['solo', 'warmup'], favorite: false, createdAt: 1, updatedAt: 1, boards: [] },
-  { id: 'c-slides-lane', userId: 'system', title: 'Lane Agility Slides', type: 'drill', focus: SkillFocus.DEFENSE, level: Level.U12, duration: 10, steps: ["Start at one side of the paint.", "Stay in a low defensive stance.", "Slide to the other side and touch the line.", "Slide back immediately.", "Maintain 1 minute active / 30s rest."], tips: "Don't cross your feet.", tags: ['solo', 'defense'], favorite: false, createdAt: 1, updatedAt: 1, boards: [] },
-  { id: 'c-burpee-jump', userId: 'system', title: 'Explosive Rim Taps', type: 'drill', focus: SkillFocus.CONDITIONING, level: Level.U16, duration: 12, steps: ["Stand under the rim.", "Perform 1 full burpee.", "Explode up and tap the backboard or rim with both hands.", "Repeat for 3 sets of 10 reps."], tips: "Land soft on your toes.", tags: ['solo', 'jumping'], favorite: false, createdAt: 1, updatedAt: 1, boards: [] }
-];
-
-const FOUNDATION_UNITS: Drill[] = (() => {
-  const list = [...SOLO_PROTOCOL_DATABASE];
-  const focuses = Object.values(SkillFocus);
-  const levels = Object.values(Level);
-  for (let i = 1; i <= 40; i++) {
-    const focus = focuses[i % focuses.length];
-    const level = levels[i % levels.length];
-    list.push({
-      id: `f-solo-${i}`,
-      userId: 'system',
-      title: `${focus} Solo Unit #${i}`,
-      type: 'drill', focus, level,
-      duration: 10 + (i % 10),
-      steps: ["Find a clear space on the court.", "Execute 20 repetitions of the primary movement.", "Check your stance and balance after every 5 reps.", "Increase intensity for the final 2 minutes of the session."],
-      tips: "Consistency is more important than speed during initial sets.",
-      tags: ['solo', focus.toLowerCase()], favorite: false, createdAt: 1, updatedAt: 1, boards: []
-    });
-  }
-  return list;
-})();
-
 const TrainingSelection: React.FC<TrainingSelectionProps> = ({ hubDrills, onSelect, onBack, userProfile }) => {
-  const [filter, setFilter] = useState<SkillFocus | 'ALL'>('ALL');
+  const userSport: Sport = userProfile?.sport ?? Sport.BASKETBALL;
+  const sportConfig = getSportConfig(userSport);
+  const sportFoundationDrills = getFoundationDrillsBySport(userSport);
+
+  const [filter, setFilter] = useState<string>('ALL');
   const [assignedTasks, setAssignedTasks] = useState<Drill[]>([]);
   const [loadingTasks, setLoadingTasks] = useState(true);
 
@@ -62,10 +34,9 @@ const TrainingSelection: React.FC<TrainingSelectionProps> = ({ hubDrills, onSele
     const unsub = onSnapshot(q, async (snap) => {
       const drillList: Drill[] = [];
       const assignments = snap.docs.map(doc => doc.data() as DrillAssignment);
-      
-      // Look for the drills in our databases (local and public)
+
       for (const assign of assignments) {
-        const found = FOUNDATION_UNITS.find(d => d.id === assign.drillId) || 
+        const found = FOUNDATION_UNITS.find(d => d.id === assign.drillId) ||
                       hubDrills.find(d => d.id === assign.drillId);
         if (found) {
           drillList.push(found);
@@ -82,15 +53,19 @@ const TrainingSelection: React.FC<TrainingSelectionProps> = ({ hubDrills, onSele
     const today = new Date();
     const dateString = today.getFullYear().toString() + today.getMonth().toString() + today.getDate().toString();
     const hash = Array.from(dateString).reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const index = hash % FOUNDATION_UNITS.length;
-    return FOUNDATION_UNITS[index];
-  }, []);
+    const pool = sportFoundationDrills.length > 0 ? sportFoundationDrills : FOUNDATION_UNITS;
+    return pool[hash % pool.length];
+  }, [sportFoundationDrills]);
 
   const filteredDrills = useMemo(() => {
-    const combined = [...FOUNDATION_UNITS, ...hubDrills];
+    // Foundation drills filtered by sport + hub drills filtered by sport
+    const sportHubDrills = hubDrills.filter(d =>
+      d.sport === userSport || (!d.sport && userSport === Sport.BASKETBALL)
+    );
+    const combined = [...sportFoundationDrills, ...sportHubDrills];
     if (filter === 'ALL') return combined;
     return combined.filter(d => d.focus === filter);
-  }, [filter, hubDrills]);
+  }, [filter, hubDrills, sportFoundationDrills, userSport]);
 
   const getIconForFocus = (focus: SkillFocus | string) => {
     switch (focus) {
@@ -180,10 +155,10 @@ const TrainingSelection: React.FC<TrainingSelectionProps> = ({ hubDrills, onSele
       {/* FILTER TABS */}
       <div className="flex bg-[#0b1224] p-1.5 rounded-[1.75rem] border border-slate-800 shadow-2xl overflow-x-auto no-scrollbar gap-1">
         <button onClick={() => setFilter('ALL')} className={`flex-1 min-w-[80px] py-3 text-[9px] font-black uppercase tracking-widest rounded-xl transition-all ${filter === 'ALL' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-600'}`}>All</button>
-        {[SkillFocus.SHOOTING, SkillFocus.BALL_HANDLING, SkillFocus.PASSING, SkillFocus.DEFENSE, SkillFocus.CONDITIONING].map(f => (
-          <button 
-            key={f} 
-            onClick={() => setFilter(f)} 
+        {sportConfig.skills.map(f => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
             className={`flex-1 min-w-[100px] py-3 text-[9px] font-black uppercase tracking-widest rounded-xl transition-all ${filter === f ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-600 hover:text-white'}`}
           >
             {f}

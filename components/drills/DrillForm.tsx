@@ -1,6 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Drill, SkillFocus, Level, CourtType, DiagramBoard, VideoUpload, DocumentUpload, SubscriptionPlan, UserRole, TacticalType, UserProfile, PlayerPosition, DiagramLine, DiagramLineType, DiagramText, TrainingSession } from '../../types';
+import { Drill, SkillFocus, Level, CourtType, DiagramBoard, VideoUpload, DocumentUpload, SubscriptionPlan, UserRole, TacticalType, UserProfile, PlayerPosition, DiagramLine, DiagramLineType, DiagramText, TrainingSession, Sport } from '../../types';
+import { getSportConfig } from '../../data/sports';
 import { clearDraftFromStorage, savePendingDrill } from '../../utils/storage';
 import { toast } from '../../utils/toast';
 import CoachBoard from '../shared/CoachBoard';
@@ -45,9 +46,14 @@ const DrillForm: React.FC<DrillFormProps> = ({
   onCancel,
 }) => {
   const t = getTranslation(userProfile);
+  const userSport: Sport = userProfile?.sport ?? Sport.BASKETBALL;
+  const sportConfig = getSportConfig(userSport);
+  const defaultCourtType = sportConfig.defaultCourtType as CourtType;
+  const sportSkills = sportConfig.skills;
+
   const [title, setTitle] = useState(initialDrill?.title || '');
   const [type, setType] = useState<TacticalType>(initialDrill?.type || 'drill');
-  const [focus, setFocus] = useState<SkillFocus | string>(initialDrill?.focus || SkillFocus.SHOOTING);
+  const [focus, setFocus] = useState<SkillFocus | string>(initialDrill?.focus || sportSkills[0]);
   const [level, setLevel] = useState<Level>(initialDrill?.level || Level.U12);
   const [duration, setDuration] = useState(initialDrill?.duration || 10);
   const [equipment, setEquipment] = useState(initialDrill?.equipment || '');
@@ -67,7 +73,7 @@ const DrillForm: React.FC<DrillFormProps> = ({
 
   const [boards, setBoards] = useState<DiagramBoard[]>(() => {
     if (initialDrill?.boards && initialDrill.boards.length > 0) return initialDrill.boards;
-    return [{ id: crypto.randomUUID(), name: 'Step 1: Setup', players: [], lines: [], texts: [], courtType: 'half' }];
+    return [{ id: crypto.randomUUID(), name: 'Step 1: Setup', players: [], lines: [], texts: [], courtType: defaultCourtType }];
   });
 
   const [activeBoardIndex, setActiveBoardIndex] = useState<number | null>(null);
@@ -294,6 +300,7 @@ const DrillForm: React.FC<DrillFormProps> = ({
       savePendingDrill({
         id: initialDrill?.id || crypto.randomUUID(),
         userId: '',
+        sport: initialDrill?.sport ?? userSport,
         title: title.trim(),
         type, focus, level, duration,
         equipment: equipment.trim(),
@@ -314,6 +321,7 @@ const DrillForm: React.FC<DrillFormProps> = ({
       await onSave({
         id: initialDrill?.id || crypto.randomUUID(),
         userId: initialDrill?.userId || auth.currentUser?.uid || '',
+        sport: initialDrill?.sport ?? userSport,
         title: title.trim(),
         type, focus, level, duration,
         equipment: equipment.trim(),
@@ -466,7 +474,7 @@ const DrillForm: React.FC<DrillFormProps> = ({
               <div className="space-y-2">
                 <label className="text-[8px] font-black uppercase text-slate-600 tracking-widest ml-2">Skill Focus</label>
                 <select className="w-full bg-ha-bg border border-slate-800 rounded-xl p-4 text-[10px] text-white font-black uppercase tracking-widest outline-none focus:border-indigo-500" value={focus} onChange={e => setFocus(e.target.value as SkillFocus)}>
-                  {Object.values(SkillFocus).map(f => <option key={f} value={f}>{f}</option>)}
+                  {sportSkills.map(f => <option key={f} value={f}>{f}</option>)}
                 </select>
               </div>
               <div className="space-y-2">
