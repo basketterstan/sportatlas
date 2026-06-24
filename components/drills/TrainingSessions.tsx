@@ -1,6 +1,7 @@
 
 import React, { useState, useRef, useMemo, useEffect } from 'react';
-import { Drill, TrainingSession, SubscriptionPlan, UserRole, SkillFocus, Level, VideoUpload, UserProfile, TacticalType } from '../../types';
+import { Drill, TrainingSession, SubscriptionPlan, UserRole, SkillFocus, Level, VideoUpload, UserProfile, TacticalType, Sport } from '../../types';
+import { getSportConfig } from '../../data/sports';
 import { auth, db, storage, cleanRecord } from '../../utils/firebase';
 import { getTranslation } from '../../utils/i18n';
 import { collection, addDoc, deleteDoc, doc, updateDoc, writeBatch, increment, getDoc, setDoc } from 'firebase/firestore';
@@ -100,16 +101,23 @@ const TrainingSessions: React.FC<TrainingSessionsProps> = ({
   const [showQuickCreate, setShowQuickCreate] = useState(false);
   
   const isPaid = !!(userProfile?.isSubscribed || userProfile?.subscriptionActive || userProfile?.isTester || userProfile?.isAdmin || (userProfile?.proExpiresAt && userProfile.proExpiresAt > Date.now()));
-  
+
+  const userSport: Sport = userProfile?.sport ?? Sport.BASKETBALL;
+  const sportConfig = getSportConfig(userSport);
+
   const pdfContainerRef = useRef<HTMLDivElement>(null);
 
   const sourceDrills = useMemo(() => {
     const all = [...(drills || []), ...(publicDrills || [])];
-    return Array.from(new Map(all.map(item => [item.id, item])).values());
-  }, [drills, publicDrills]);
+    const unique = Array.from(new Map(all.map(item => [item.id, item])).values());
+    // Only show drills matching user's sport
+    return unique.filter(d => d.sport === userSport || (!d.sport && userSport === Sport.BASKETBALL));
+  }, [drills, publicDrills, userSport]);
 
   const filteredSessions = useMemo(() => {
-    let list = activeTab === 'my' ? sessions : publicSessions;
+    let list = (activeTab === 'my' ? sessions : publicSessions).filter(s =>
+      s.sport === userSport || (!s.sport && userSport === Sport.BASKETBALL)
+    );
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       list = list.filter(s => (s.name || '').toLowerCase().includes(q));
@@ -228,9 +236,16 @@ const TrainingSessions: React.FC<TrainingSessionsProps> = ({
   const [drillTypeFilter, setDrillTypeFilter] = useState<TacticalType | 'all'>('all');
   const [drillDurationFilter, setDrillDurationFilter] = useState<'all' | 'short' | 'medium' | 'long'>('all');
 
+  const sportDrills = useMemo(() =>
+    (drills || []).filter(d => d.sport === userSport || (!d.sport && userSport === Sport.BASKETBALL)),
+    [drills, userSport]);
+  const sportPublicDrills = useMemo(() =>
+    (publicDrills || []).filter(d => d.sport === userSport || (!d.sport && userSport === Sport.BASKETBALL)),
+    [publicDrills, userSport]);
+
   const filteredDrillsForSelection = useMemo(() => {
-    let list = drillSourceFilter === 'my' ? (drills || []) : 
-               drillSourceFilter === 'community' ? (publicDrills || []) : 
+    let list = drillSourceFilter === 'my' ? sportDrills :
+               drillSourceFilter === 'community' ? sportPublicDrills :
                sourceDrills;
 
     if (drillSearch.trim()) {
@@ -270,6 +285,7 @@ const TrainingSessions: React.FC<TrainingSessionsProps> = ({
         userId: auth.currentUser.uid,
         authorName: userName || 'Coach',
         name: sessionName.trim().toUpperCase(),
+        sport: userSport,
         drillIds: selectedDrillIds,
         videoUploads: sessionVideoUploads,
         isPublic,
@@ -787,7 +803,7 @@ const TrainingSessions: React.FC<TrainingSessionsProps> = ({
                           className="bg-ha-bg border border-slate-900 p-2 rounded-xl text-[9px] font-black uppercase text-white outline-none focus:border-indigo-500"
                          >
                             <option value="all">FOCUS</option>
-                            {Object.values(SkillFocus).map(f => <option key={f} value={f}>{f}</option>)}
+                            {sportConfig.skills.map(f => <option key={f} value={f}>{f}</option>)}
                          </select>
                          <select 
                           value={drillLevelFilter}

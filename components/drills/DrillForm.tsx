@@ -164,39 +164,70 @@ const DrillForm: React.FC<DrillFormProps> = ({
     while (attempt <= maxRetries && !success) {
       try {
         console.log(`[log] - AI Synthesis Attempt ${attempt + 1}...`);
+        const sportName = sportConfig.labelEn;
+        const courtTypeValue = defaultCourtType;
+
+        const sportContext: Record<string, string> = {
+          basketball: `COURT BOUNDARIES: Half-court (X 5-95, Y 5-89), Full-court (X 5-183, Y 5-95).
+              Typical half-court positions: point guard ~(50,75), wings ~(20,60) and ~(80,60), corners ~(10,30) and ~(90,30), post ~(50,25).
+              LINE TYPES: 'run' (player movement), 'pass' (ball movement), 'screen', 'dribble', 'shot'.
+              COURT TYPE VALUES: use 'half' for half-court drills, 'full' for full-court drills.`,
+          soccer: `FIELD BOUNDARIES: Full field (X 5-195, Y 5-125), Half field (X 5-195, Y 5-125 showing one end).
+              Typical positions: goalkeeper ~(10,65), defenders ~(40,30), ~(40,65), ~(40,100), midfielders ~(80,45), ~(80,85), forwards ~(140,50), ~(140,80).
+              LINE TYPES: 'run' (player run), 'pass' (ball pass), 'shot', 'draw' (tactical arrow).
+              COURT TYPE VALUES: use 'field-full' for full field, 'field-half' for half field drills.`,
+          volleyball: `COURT BOUNDARIES: Court (X 10-170, Y 10-80). Net at X=90.
+              Typical positions: setter ~(110,45), outside hitters ~(110,15) and ~(110,75), opposite ~(30,45), libero ~(30,65), middle blockers ~(90,30) and ~(90,60).
+              LINE TYPES: 'run' (player movement), 'pass' (ball movement), 'draw'.
+              COURT TYPE VALUES: use 'volleyball-court'.`,
+          'american-football': `FIELD BOUNDARIES: Full field (X 5-195, Y 5-105), Half field (X 5-195, Y 5-105).
+              Typical positions: QB ~(60,52), center ~(55,52), guards ~(50,45) and ~(50,59), tackles ~(44,40) and ~(44,64), WRs ~(80,25) and ~(80,79), RB ~(70,52), TE ~(52,36).
+              LINE TYPES: 'run' (player route/rush), 'pass' (throw), 'screen' (block), 'draw' (assignment arrow).
+              COURT TYPE VALUES: use 'football-full' for full field, 'football-half' for half field.`,
+          rugby: `FIELD BOUNDARIES: Full pitch (X 5-195, Y 5-125), Half pitch (X 5-195, Y 5-125).
+              Typical positions: scrum-half ~(60,62), fly-half ~(75,50), centres ~(95,40) and ~(95,75), wingers ~(130,20) and ~(130,105), fullback ~(155,62), forwards ~(55,55).
+              LINE TYPES: 'run' (player carry/support), 'pass' (lateral pass), 'draw' (defensive line).
+              COURT TYPE VALUES: use 'rugby-full' for full pitch, 'rugby-half' for half pitch.`,
+          tennis: `COURT BOUNDARIES: Full court (X 5-195, Y 5-85). Net at Y=45. Singles alleys inside X=20 and X=180.
+              Typical positions: baseline player ~(100,75), net player ~(100,30), opponent ~(100,15).
+              LINE TYPES: 'run' (player movement), 'pass' (ball trajectory), 'draw' (tactic arrow).
+              COURT TYPE VALUES: use 'tennis-court' for doubles, 'tennis-singles' for singles.`,
+        };
+
+        const ctx = sportContext[userSport] ?? sportContext['basketball'];
+
         const responseText = await callAI({
           model: 'gpt-4o',
           messages: [
             {
               role: 'system',
-              content: `You are the SportAtlas Master Coach. You provide elite tactical data in RAW JSON.
+              content: `You are the SportAtlas Master Coach specializing in ${sportName}. You provide elite tactical data in RAW JSON.
               STRICT RULE: Return ONLY valid JSON. NEVER include conversational text, warnings, or explanations.
 
-              COURT BOUNDARIES: Half-court (X 5-95, Y 5-89), Full-court (X 5-183, Y 5-95).
-              PLAYER TYPES: 'home', 'away', 'ball', 'cone'.
-              LINE TYPES: 'run', 'pass', 'screen', 'dribble', 'shot'.
+              SPORT: ${sportName}
+              ${ctx}
 
               CRITICAL SPACING RULES — ALWAYS FOLLOW:
-              1. NEVER place two players within 15 units of each other. Every player must be clearly separated.
-              2. Spread players across the ENTIRE court area. Use the full width (X: 10-90) and full depth (Y: 10-85 for half-court).
-              3. Typical positions for half-court: point guard ~(50,75), wings ~(20,60) and ~(80,60), corners ~(10,30) and ~(90,30), post ~(50,25).
-              4. The 'ball' player should always be placed ON TOP of or very close (within 3 units) to the player holding it.
-              5. Lines must connect logically: startX/startY at the player origin, endX/endY at the destination.
-              6. Labels must be short: 1, 2, 3, 4, 5 for home players; X, Y, Z for away players.
+              1. NEVER place two players within 12 units of each other. Every player must be clearly separated.
+              2. Spread players across the ENTIRE field area relevant to the drill.
+              3. The 'ball' player should always be placed ON TOP of or very close (within 3 units) to the player holding it.
+              4. Lines must connect logically: startX/startY at the player origin, endX/endY at the destination.
+              5. Labels must be short: 1, 2, 3, 4, 5 for home players; X, Y, Z for away players.
 
               Required JSON structure: { title, focus, duration, steps: string[], tags: string[], boards: [{ name, courtType, players: [{x,y,type,label}], lines: [{type,startX,startY,endX,endY}] }] }`
             },
             {
               role: 'user',
-              content: `MISSION COMMAND: Synthesize a professional basketball ${type.toUpperCase()}.
+              content: `MISSION COMMAND: Synthesize a professional ${sportName} ${type.toUpperCase()}.
               FOCUS: ${focus}
               LEVEL: ${level}
               PROMPT: "${aiPrompt}"
 
               CRITICAL INSTRUCTIONS:
-              1. If the PROMPT is very short (e.g. "shooting"), use your expert knowledge to improvise a COMPLETE professional training unit.
+              1. If the PROMPT is very short, use your expert ${sportName} knowledge to improvise a COMPLETE professional training unit.
               2. Generate exactly 3 tactical frames representing a logical progression.
-              3. Return RAW JSON ONLY. No markdown formatting.`
+              3. Use courtType value '${courtTypeValue}' in every board.
+              4. Return RAW JSON ONLY. No markdown formatting.`
             }
           ],
           response_format: { type: 'json_object' },
@@ -219,7 +250,7 @@ const DrillForm: React.FC<DrillFormProps> = ({
               players: b.players?.map((p) => ({ ...p, id: crypto.randomUUID(), x: p.x ?? 50, y: p.y ?? 50, type: (p.type as PlayerPosition['type']) ?? 'home' })) || [],
               lines: b.lines?.map((l) => ({ ...l, id: crypto.randomUUID(), type: (l.type as DiagramLine['type']) ?? 'run', startX: l.startX ?? 0, startY: l.startY ?? 0, endX: l.endX ?? 0, endY: l.endY ?? 0 })) || [],
               texts: [],
-              courtType: (b.courtType === 'full' ? 'full' : 'half') as CourtType
+              courtType: (sportConfig.courtTypes.find(c => c.value === b.courtType)?.value ?? defaultCourtType) as CourtType
             })));
           }
           setIsAiGenerating(false);
