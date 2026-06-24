@@ -1440,7 +1440,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ userProfile, onBack, on
                 <div className="space-y-3">
                    <h3 className="text-3xl font-black italic uppercase text-white tracking-tighter">TikTok Creator Studio</h3>
                    <p className="text-xs font-medium text-slate-500 leading-relaxed max-w-sm mx-auto">
-                     Generate high-impact vertical content for social media. Export plays and drills in 9:16 HD format to promote HoopsAtlas.
+                     Generate high-impact vertical content for social media. Export plays and drills in 9:16 HD format to promote SportAtlas.
                    </p>
                 </div>
                 <button 
@@ -1547,7 +1547,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ userProfile, onBack, on
                          <div className="grid grid-cols-2 gap-2">
                             <button 
                                onClick={() => {
-                                  const text = `Subject: A little something for your HoopsAtlas journey 🏀\n\nHi [Name],\n\nI noticed you were checking out our Pro features on HoopsAtlas recently!\n\nTo help you get started and see the full power of our tactical tools, I'd like to offer you 1 month for free.\n\nUse the code HOOPS364 at checkout to claim your free month.\n\nIf you have any questions or need help setting up your team, just let me know!\n\nBest,\nStan from HoopsAtlas`;
+                                  const text = `Subject: A little something for your SportAtlas journey 🏆\n\nHi [Name],\n\nI noticed you were checking out our Pro features on SportAtlas recently!\n\nTo help you get started and see the full power of our tactical tools, I'd like to offer you 1 month for free.\n\nUse the code HOOPS364 at checkout to claim your free month.\n\nIf you have any questions or need help setting up your team, just let me know!\n\nBest,\nStan from SportAtlas`;
                                   navigator.clipboard.writeText(text);
                                   alert("English template copied!");
                                }}
@@ -1557,7 +1557,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ userProfile, onBack, on
                             </button>
                             <button 
                                onClick={() => {
-                                  const text = `Onderwerp: Een cadeautje voor je HoopsAtlas avontuur 🏀\n\nHoi [Naam],\n\nIk zag dat je onlangs interesse had in onze Pro-functies op HoopsAtlas!\n\nOm je op weg te helpen en de volledige kracht van onze tactische tools te laten ervaren, wil ik je graag 1 maand gratis aanbieden.\n\nGebruik de code HOOPS364 bij het afrekenen om je gratis maand te claimen.\n\nHeb je vragen of hulp nodig bij het instellen van je team? Laat het me weten!\n\nGroetjes,\nStan van HoopsAtlas`;
+                                  const text = `Onderwerp: Een cadeautje voor je SportAtlas avontuur 🏆\n\nHoi [Naam],\n\nIk zag dat je onlangs interesse had in onze Pro-functies op SportAtlas!\n\nOm je op weg te helpen en de volledige kracht van onze tactische tools te laten ervaren, wil ik je graag 1 maand gratis aanbieden.\n\nGebruik de code HOOPS364 bij het afrekenen om je gratis maand te claimen.\n\nHeb je vragen of hulp nodig bij het instellen van je team? Laat het me weten!\n\nGroetjes,\nStan van SportAtlas`;
                                   navigator.clipboard.writeText(text);
                                   alert("Nederlandse template gekopieerd!");
                                }}

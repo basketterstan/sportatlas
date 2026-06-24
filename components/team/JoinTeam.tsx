@@ -121,7 +121,7 @@ const JoinTeam: React.FC<JoinTeamProps> = ({ onBack, onJoined }) => {
       </div>
       
       <div className="absolute bottom-12 left-0 w-full text-center opacity-20 pointer-events-none">
-        <p className="text-[8px] font-black uppercase tracking-[0.6em] text-white">HoopsAtlas Security Protocol</p>
+        <p className="text-[8px] font-black uppercase tracking-[0.6em] text-white">SportAtlas Security Protocol</p>
       </div>
     </div>
   );

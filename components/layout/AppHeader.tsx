@@ -3,6 +3,7 @@ import { type User } from 'firebase/auth';
 import { ViewState } from '../../types';
 import { useAppContext } from '../../contexts/AppContext';
 import { getTranslation } from '../../utils/i18n';
+import { SPORTS } from '../../data/sports';
 
 interface Props {
   user: User | null;
@@ -168,8 +169,13 @@ const AppHeader: React.FC<Props> = ({ user, partnerBannerEnabled, globalAlert, u
                 {initials}
               </div>
               <div className="text-left">
-                <p className="text-sm font-semibold text-ha-textHi leading-none" style={{ fontSize: 13 }}>
+                <p className="text-sm font-semibold text-ha-textHi leading-none flex items-center gap-1" style={{ fontSize: 13 }}>
                   {userProfile?.name || user.displayName || 'User'}
+                  {userProfile?.sport && (
+                    <span className="text-sm" title={userProfile.sport}>
+                      {SPORTS.find(s => s.id === userProfile.sport)?.emoji ?? '🏀'}
+                    </span>
+                  )}
                 </p>
                 <p className="text-ha-textLow mt-0.5" style={{ fontSize: 11 }}>{roleLabel}</p>
               </div>

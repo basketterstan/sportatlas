@@ -601,7 +601,7 @@ const LandingPage: React.FC<LandingPageProps> = ({
               onClick={() => onNavigate('about')}
               className="flex-1 py-6 bg-slate-900 border border-white/5 rounded-[2.5rem] text-[13px] font-black uppercase tracking-[0.3em] text-slate-500 hover:text-white transition-all"
             >
-              About HoopsAtlas
+              About SportAtlas
             </button>
           </div>
         </div>
@@ -661,7 +661,7 @@ const LandingPage: React.FC<LandingPageProps> = ({
             <div className="space-y-6">
               <h4 className="text-[11px] font-black uppercase tracking-[0.4em] text-white">Platform</h4>
               <ul className="space-y-3">
-                <li><button onClick={() => onNavigate('about')} className="text-[10px] font-bold text-slate-500 hover:text-ha-brand uppercase tracking-[0.2em] transition-colors">About HoopsAtlas</button></li>
+                <li><button onClick={() => onNavigate('about')} className="text-[10px] font-bold text-slate-500 hover:text-ha-brand uppercase tracking-[0.2em] transition-colors">About SportAtlas</button></li>
                 <li><button onClick={() => onNavigate('support')} className="text-[10px] font-bold text-slate-500 hover:text-ha-brand uppercase tracking-[0.2em] transition-colors">Ops Support</button></li>
                 <li><button onClick={() => onNavigate('partners')} className="text-[10px] font-bold text-slate-500 hover:text-ha-brand uppercase tracking-[0.2em] transition-colors">Partner Program</button></li>
               </ul>

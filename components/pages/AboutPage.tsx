@@ -138,7 +138,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
           </h1>
         </div>
         <p className="max-w-2xl text-slate-500 text-sm md:text-lg font-medium leading-relaxed uppercase tracking-tight mx-auto md:mx-0">
-          HoopsAtlas is not just an app; it is a digital ecosystem for basketball intelligence. From AI-driven tactics to real-time tournament management.
+          SportAtlas is not just an app; it is a digital ecosystem for multi-sport coaching intelligence. From AI-driven tactics to real-time tournament management, for every sport.
         </p>
       </section>
 
@@ -153,12 +153,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
               </div>
               <div className="space-y-1">
                 <h2 className="text-3xl md:text-4xl font-black italic uppercase text-white tracking-tighter">
-                  About <span 
-                    className="text-ha-brand cursor-pointer hover:underline decoration-cyan-400/50 underline-offset-4 transition-all"
-                    onClick={() => window.location.href = 'https://app.hoopsatlas.com'}
-                  >
-                    HoopsAtlas
-                  </span>
+                  About <span className="text-ha-brand">SportAtlas</span>
                 </h2>
                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em]">The origin of our tactical directive</p>
               </div>
@@ -166,16 +161,16 @@ const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
 
             <div className="space-y-6 text-slate-300 text-sm md:text-lg font-medium leading-relaxed uppercase tracking-tight italic">
               <p className="border-l-4 border-ha-brand/40 pl-6">
-                HoopsAtlas didn’t start as a “business idea” — it started as a solution to a problem I had every week as a coach.
+                SportAtlas didn’t start as a "business idea" — it started as a solution to a problem I had every week as a coach.
               </p>
               <p className="pl-7">
-                I’m Stan, a basketball coach and player. Before each practice, I was constantly doing the same things: searching for drills, redrawing plays, pulling plans together from notes, photos, and different apps. It took time — and it wasn’t organized.
+                I’m Stan, a sports coach and player. Before each practice, I was constantly doing the same things: searching for drills, redrawing plays, pulling plans together from notes, photos, and different apps. It took time — and it wasn’t organized.
               </p>
               <p className="pl-7">
-                So I decided to build the tool I actually wanted to use: one platform where coaches can organize their playbook, drills, and practice plans — always accessible when you need it. That became HoopsAtlas.
+                So I decided to build the tool I actually wanted to use: one platform where coaches across all sports can organize their playbook, drills, and practice plans — always accessible when you need it. That became SportAtlas.
               </p>
               <p className="bg-white/5 p-8 rounded-3xl border border-white/5">
-                Today, coaches use HoopsAtlas to plan faster, communicate more clearly with their team, and build structure throughout the season — without the chaos.
+                Today, coaches use SportAtlas to plan faster, communicate more clearly with their team, and build structure throughout the season — without the chaos. Whether you coach basketball, soccer, volleyball, or any other sport.
               </p>
             </div>
           </div>
@@ -329,7 +324,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
       </div>
 
       <div className="flex flex-col items-center gap-4 opacity-20">
-        <p className="text-center text-[8px] font-black text-slate-600 uppercase tracking-[0.5em]">HOOPSATLAS PROFESSIONAL • VERSION 1.5.4 • EST. 2026</p>
+        <p className="text-center text-[8px] font-black text-slate-600 uppercase tracking-[0.5em]">SPORTATLAS PROFESSIONAL • VERSION 1.5.4 • EST. 2026</p>
       </div>
     </div>
   );

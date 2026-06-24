@@ -138,7 +138,7 @@ const ClubHQ: React.FC<ClubHQProps> = ({ userProfile, onBack, onViewDrill, onNav
       const snap = await getDocs(q);
       
       if (snap.empty) {
-        alert("COACH NOT FOUND: Ensure the coach has already created a HoopsAtlas account with this email address.");
+        alert("COACH NOT FOUND: Ensure the coach has already created a SportAtlas account with this email address.");
       } else {
         const coachDoc = snap.docs[0];
         const coachData = coachDoc.data();
@@ -309,7 +309,7 @@ const ClubHQ: React.FC<ClubHQProps> = ({ userProfile, onBack, onViewDrill, onNav
               <div className="space-y-3">
                  <div className="flex gap-3 items-start">
                     <span className="w-4 h-4 rounded-full bg-slate-800 flex items-center justify-center text-[8px] font-black text-slate-500 shrink-0 mt-0.5">1</span>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase leading-tight tracking-wide">Coach creates a HoopsAtlas account first.</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase leading-tight tracking-wide">Coach creates a SportAtlas account first.</p>
                  </div>
                  <div className="flex gap-3 items-start">
                     <span className="w-4 h-4 rounded-full bg-slate-800 flex items-center justify-center text-[8px] font-black text-slate-500 shrink-0 mt-0.5">2</span>

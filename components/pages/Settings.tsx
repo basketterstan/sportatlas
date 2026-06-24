@@ -5,7 +5,8 @@ import { doc, updateDoc, setDoc, collection, getDocs, query, getDoc, orderBy, li
 import { auth, db, generateReferralCode, requestNotificationPermission } from '../../utils/firebase';
 import { showCustomerCenter } from '../../utils/revenuecat';
 import { Capacitor } from '@capacitor/core';
-import { Drill, UserProfile, ViewState, SubscriptionPlan } from '../../types';
+import { Drill, UserProfile, ViewState, SubscriptionPlan, Sport } from '../../types';
+import { SPORTS } from '../../data/sports';
 import { getTranslation, getAppLanguage, AppLanguage, LANGUAGE_STORAGE_KEY } from '../../utils/i18n';
 
 interface SettingsProps {
@@ -462,6 +463,39 @@ const Settings: React.FC<SettingsProps> = ({ userProfile, onOpenAdmin, onNavigat
             >
               <span className="text-lg">🇪🇸</span> Español
             </button>
+          </div>
+        </div>
+      </section>
+
+      {/* PRIMARY SPORT */}
+      <section className="space-y-4">
+        <h3 className="text-[10px] font-black uppercase tracking-widest text-indigo-400 ml-1 italic">Primary Sport</h3>
+        <div className="bg-[#0b1224] border border-slate-800 rounded-[2.5rem] p-8 shadow-xl space-y-5">
+          <div className="space-y-1">
+            <p className="text-sm font-black italic uppercase text-white">Your Sport</p>
+            <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest leading-tight">Select the sport you coach or play</p>
+          </div>
+          {/* Sport selector */}
+          <div className="space-y-3">
+            <p className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Primary Sport</p>
+            <div className="grid grid-cols-3 gap-2">
+              {SPORTS.map(sport => {
+                const isActive = (userProfile?.sport ?? Sport.BASKETBALL) === sport.id;
+                return (
+                  <button
+                    key={sport.id}
+                    onClick={async () => {
+                      if (!userProfile?.uid) return;
+                      await updateDoc(doc(db, 'users', userProfile.uid), { sport: sport.id });
+                    }}
+                    className={`py-3 px-2 rounded-xl text-[8px] font-black uppercase tracking-wide transition-all flex flex-col items-center gap-1 ${isActive ? 'bg-blue-600 text-white shadow-lg' : 'bg-ha-bg border border-slate-800 text-slate-500 hover:border-slate-600'}`}
+                  >
+                    <span className="text-lg">{sport.emoji}</span>
+                    <span>{sport.labelEn}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>

@@ -54,7 +54,7 @@ const SideNav: React.FC<SideNavProps> = ({ currentView, onNavigate, userProfile,
           <div className="w-7 h-7 bg-ha-brand rounded-lg flex items-center justify-center flex-shrink-0">
             <span className="text-white font-bold text-xs tracking-tight">HA</span>
           </div>
-          <span className="font-semibold text-ha-textHi" style={{ fontSize: 15, letterSpacing: -0.2 }}>Hoops Atlas</span>
+          <span className="font-semibold text-ha-textHi" style={{ fontSize: 15, letterSpacing: -0.2 }}>Sport Atlas</span>
         </div>
       </div>
 

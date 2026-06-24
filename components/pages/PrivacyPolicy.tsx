@@ -27,7 +27,7 @@ const PrivacyPolicy: React.FC<PrivacyPolicyProps> = ({ onBack }) => {
         <section className="space-y-4">
           <h2 className="text-xl font-black uppercase italic tracking-widest text-white border-l-4 border-ha-brand pl-4">1. Introduction</h2>
           <p className="text-slate-400 text-sm leading-relaxed">
-            Welcome to HoopsAtlas. We respect your privacy and are committed to protecting your personal data. This privacy policy explains how we handle your data and our commitment to user privacy.
+            Welcome to SportAtlas. We respect your privacy and are committed to protecting your personal data. This privacy policy explains how we handle your data and our commitment to user privacy.
           </p>
         </section>
 
@@ -36,10 +36,10 @@ const PrivacyPolicy: React.FC<PrivacyPolicyProps> = ({ onBack }) => {
           <div className="bg-[#0b1224] border border-indigo-500/20 p-6 rounded-3xl space-y-4">
             <p className="text-slate-300 text-sm font-bold uppercase">Our Policy on Tracking:</p>
             <p className="text-slate-400 text-xs leading-relaxed">
-              HoopsAtlas <strong>does not track</strong> your activity across other companies' apps and websites for advertising purposes. We do not sell your personal information to data brokers or third-party advertisers.
+              SportAtlas <strong>does not track</strong> your activity across other companies' apps and websites for advertising purposes. We do not sell your personal information to data brokers or third-party advertisers.
             </p>
             <p className="text-slate-400 text-xs leading-relaxed italic">
-              While we collect certain identifiers (like your email and name) to provide the app's core functionality (e.g., syncing your playbook across devices), this data is used exclusively within the HoopsAtlas ecosystem.
+              While we collect certain identifiers (like your email and name) to provide the app's core functionality (e.g., syncing your playbook across devices), this data is used exclusively within the SportAtlas ecosystem.
             </p>
           </div>
         </section>
@@ -61,7 +61,7 @@ const PrivacyPolicy: React.FC<PrivacyPolicyProps> = ({ onBack }) => {
         <section className="space-y-4">
           <h2 className="text-xl font-black uppercase italic tracking-widest text-white border-l-4 border-ha-brand pl-4">4. Use of AI (Gemini)</h2>
           <p className="text-slate-400 text-sm leading-relaxed">
-            HoopsAtlas utilizes the Google Gemini API for tactical assistance. Prompts sent to the AI are used for drill generation only. We advise against including personally identifiable information in tactical prompts.
+            SportAtlas utilizes the Google Gemini API for tactical assistance. Prompts sent to the AI are used for drill generation only. We advise against including personally identifiable information in tactical prompts.
           </p>
         </section>
 
@@ -69,7 +69,7 @@ const PrivacyPolicy: React.FC<PrivacyPolicyProps> = ({ onBack }) => {
           <h2 className="text-xl font-black uppercase italic tracking-widest text-white border-l-4 border-ha-brand pl-4">5. Third Parties</h2>
           <ul className="list-disc pl-6 text-slate-400 text-sm space-y-2 font-medium">
             <li><span className="text-white font-bold">Google Firebase:</span> Secure infrastructure for authentication and storage.</li>
-            <li><span className="text-white font-bold">Stripe:</span> Secure payment processing. No payment card details are stored on HoopsAtlas servers.</li>
+            <li><span className="text-white font-bold">Stripe:</span> Secure payment processing. No payment card details are stored on SportAtlas servers.</li>
             <li><span className="text-white font-bold">Sign in with Apple:</span> Secure authentication service that allows users to keep their email private.</li>
           </ul>
         </section>

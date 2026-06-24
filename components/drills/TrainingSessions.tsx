@@ -405,7 +405,7 @@ const TrainingSessions: React.FC<TrainingSessionsProps> = ({
               })}
             </div>
             <div className="mt-12 pt-6 border-t border-slate-100 text-center opacity-30">
-               <p className="text-[8px] font-black uppercase tracking-[0.5em]">HoopsAtlas Professional Playbook • Internal Only</p>
+               <p className="text-[8px] font-black uppercase tracking-[0.5em]">SportAtlas Professional Playbook • Internal Only</p>
             </div>
           </div>
         )}

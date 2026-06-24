@@ -216,7 +216,7 @@ const SupportPage: React.FC<SupportPageProps> = ({ onBack }) => {
               className="h-16 mx-auto brightness-0 invert opacity-80"
             />
             <p className="text-[9px] text-indigo-200 font-bold uppercase tracking-widest leading-relaxed">
-              HoopsAtlas is powered by BasketVision Intelligence for advanced tactical analysis.
+              SportAtlas is powered by BasketVision Intelligence for advanced tactical analysis.
             </p>
           </div>
         </div>
@@ -232,7 +232,7 @@ const SupportPage: React.FC<SupportPageProps> = ({ onBack }) => {
             Steun de <span className="text-transparent bg-clip-text bg-gradient-to-r from-ha-brand to-blue-400">Camera Man</span>
           </h2>
           <p className="text-slate-400 text-sm font-medium leading-relaxed max-w-lg mx-auto uppercase tracking-tight">
-            HoopsAtlas films games for free for the Belgian basketball community.
+            SportAtlas films games for free for the Belgian basketball community.
             Met een kleine donatie help je de kosten te dekken en dit vol te houden.
           </p>
         </div>
@@ -241,7 +241,7 @@ const SupportPage: React.FC<SupportPageProps> = ({ onBack }) => {
           className="inline-flex items-center gap-3 px-10 py-5 bg-ha-brand text-slate-950 font-black uppercase tracking-[0.3em] rounded-[2rem] transition-all active:scale-95 shadow-[0_20px_40px_rgba(6,182,212,0.25)] text-[13px] hover:shadow-[0_20px_40px_rgba(6,182,212,0.4)]"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          Steun HoopsAtlas
+          Steun SportAtlas
         </button>
         <p className="text-[9px] text-slate-600 font-black uppercase tracking-widest">Veilig via Stripe • Eenmalig • Geen account nodig</p>
       </section>

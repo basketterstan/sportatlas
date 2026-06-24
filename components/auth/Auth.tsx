@@ -10,7 +10,8 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc, writeBatch, collection, arrayUnion } from 'firebase/firestore';
 import { auth, db, generateReferralCode, persistencePromise } from '../../utils/firebase';
-import { ViewState, UserRole } from '../../types';
+import { ViewState, UserRole, Sport } from '../../types';
+import { SPORTS } from '../../data/sports';
 import { getTranslation } from '../../utils/i18n';
 
 interface AuthProps {
@@ -30,6 +31,7 @@ const Auth: React.FC<AuthProps> = ({ onNavigate, initialMode = 'login' }) => {
   const [username, setUsername] = useState('');
   const [enteredReferralCode, setEnteredReferralCode] = useState('');
   const [role, setRole] = useState<UserRole>('coach');
+  const [selectedSport, setSelectedSport] = useState<Sport>(Sport.BASKETBALL);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -152,6 +154,7 @@ const Auth: React.FC<AuthProps> = ({ onNavigate, initialMode = 'login' }) => {
           referredBy: referredByUid || null,
           isSubscribed: bonusActive,
           language: userLang,
+          sport: selectedSport,
           createdAt: Date.now()
         });
 
@@ -224,6 +227,7 @@ const Auth: React.FC<AuthProps> = ({ onNavigate, initialMode = 'login' }) => {
         referredBy: null,
         isSubscribed: false,
         language: userLang,
+        sport: Sport.BASKETBALL,
         createdAt: Date.now()
       });
       batch.set(doc(db, 'referralCodes', myReferralCode), { ownerUid: user.uid, createdAt: Date.now() });
@@ -269,18 +273,16 @@ const Auth: React.FC<AuthProps> = ({ onNavigate, initialMode = 'login' }) => {
       <div className="w-full max-w-sm space-y-10 animate-in fade-in duration-700 py-12">
         <div className="text-center space-y-4">
           <div
-            className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto shadow-2xl cursor-pointer hover:scale-105 transition-transform"
-            onClick={() => window.location.href = 'https://app.hoopsatlas.com'}
+            className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto shadow-2xl"
             role="img"
-            aria-label="HoopsAtlas logo"
+            aria-label="SportAtlas logo"
           >
-            <span className="text-white font-black text-3xl italic">H</span>
+            <span className="text-white font-black text-3xl italic">S</span>
           </div>
-          <h1 
-            className="text-4xl font-black tracking-tight uppercase cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={() => window.location.href = 'https://app.hoopsatlas.com'}
+          <h1
+            className="text-4xl font-black tracking-tight uppercase"
           >
-            Hoops<span className="text-blue-500 ml-1">Atlas</span>
+            Sport<span className="text-blue-500 ml-1">Atlas</span>
           </h1>
           <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.3em]">
             {mode === 'login' ? t.tacticalAuth : mode === 'signup' ? t.createIdentity : mode === 'join-code' ? 'Join with Team Code' : mode === 'join-register' ? `Joining ${joinTeamName}` : 'Credentials Recovery'}
@@ -348,6 +350,23 @@ const Auth: React.FC<AuthProps> = ({ onNavigate, initialMode = 'login' }) => {
                       <button type="button" onClick={() => setRole('player')} className={`py-3 rounded-xl text-[7px] font-black uppercase tracking-widest transition-all ${role === 'player' ? 'bg-ha-brand text-slate-950 shadow-lg' : 'text-slate-600'}`}>{t.player}</button>
                       <button type="button" onClick={() => setRole('club')} className={`py-3 rounded-xl text-[7px] font-black uppercase tracking-widest transition-all ${role === 'club' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-600'}`}>{t.club}</button>
                       <button type="button" onClick={() => setRole('parent')} className={`py-3 rounded-xl text-[7px] font-black uppercase tracking-widest transition-all ${role === 'parent' ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-600'}`}>{t.parent}</button>
+                    </div>
+                    {/* Sport selector */}
+                    <div className="space-y-2">
+                      <p className="text-[9px] font-black uppercase text-slate-500 tracking-widest ml-1">Your Sport</p>
+                      <div className="grid grid-cols-3 gap-2">
+                        {SPORTS.map(sport => (
+                          <button
+                            key={sport.id}
+                            type="button"
+                            onClick={() => setSelectedSport(sport.id)}
+                            className={`py-3 px-2 rounded-xl text-[8px] font-black uppercase tracking-wide transition-all flex flex-col items-center gap-1 ${selectedSport === sport.id ? 'bg-blue-600 text-white shadow-lg' : 'bg-ha-bg border border-slate-800 text-slate-500 hover:border-slate-600'}`}
+                          >
+                            <span className="text-lg">{sport.emoji}</span>
+                            <span>{sport.labelEn}</span>
+                          </button>
+                        ))}
+                      </div>
                     </div>
                     <input required autoComplete="username" type="text" value={username} onChange={(e) => setUsername(e.target.value.replace(/\s+/g, ''))} placeholder={t.username} className="w-full bg-ha-bg border border-slate-800 rounded-xl px-5 py-4 text-sm text-white font-medium outline-none focus:border-blue-500 transition-all" />
                     <input required autoComplete="name" type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder={t.fullName} className="w-full bg-ha-bg border border-slate-800 rounded-xl px-5 py-4 text-sm text-white font-medium outline-none focus:border-blue-500 transition-all" />

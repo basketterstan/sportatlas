@@ -27,7 +27,7 @@ const SubscriptionTerms: React.FC<SubscriptionTermsProps> = ({ onBack }) => {
         <section className="space-y-4">
           <h2 className="text-xl font-black uppercase italic tracking-widest text-white border-l-4 border-purple-500 pl-4">1. Access Tiers</h2>
           <p className="text-slate-400 text-sm leading-relaxed">
-            HoopsAtlas provides Free, Basic, and Pro tiers. Features are subject to current pricing at the time of purchase. By upgrading, you authorize automatic recurring billing through Stripe.
+            SportAtlas provides Free, Basic, and Pro tiers. Features are subject to current pricing at the time of purchase. By upgrading, you authorize automatic recurring billing through Stripe.
           </p>
         </section>
 

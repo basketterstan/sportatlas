@@ -24,7 +24,7 @@ const AccountDeletion: React.FC<AccountDeletionProps> = ({ onBack }) => {
     const typeLabel = requestType === 'full' ? 'FULL ACCOUNT WIPEOUT' : 'PARTIAL DATA ERASURE';
     formData.append('entry.1029448291', `${typeLabel}: ${name}`);
     formData.append('entry.218947921', email);
-    formData.append('entry.315525986', `Request Type: ${requestType}. Reason: ${reason}. Instructions: Please purge all specified HoopsAtlas tactical data.`);
+    formData.append('entry.315525986', `Request Type: ${requestType}. Reason: ${reason}. Instructions: Please purge all specified SportAtlas tactical data.`);
 
     try {
       await fetch(GOOGLE_FORM_URL, {
@@ -54,7 +54,7 @@ const AccountDeletion: React.FC<AccountDeletionProps> = ({ onBack }) => {
         <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none">
           Data <span className="text-red-500">Erasure</span>
         </h1>
-        <p className="text-slate-500 text-[11px] font-black uppercase tracking-[0.5em] ml-1">HoopsAtlas Privacy & Compliance Protocol</p>
+        <p className="text-slate-500 text-[11px] font-black uppercase tracking-[0.5em] ml-1">SportAtlas Privacy & Compliance Protocol</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -63,13 +63,13 @@ const AccountDeletion: React.FC<AccountDeletionProps> = ({ onBack }) => {
           <section className="space-y-4">
             <h2 className="text-xl font-black uppercase italic tracking-widest text-white border-l-4 border-red-500 pl-4">Steps to Delete Data</h2>
             <p className="text-slate-400 text-sm leading-relaxed font-medium">
-              HoopsAtlas (the "App") allows you to remove all or specific tactical data:
+              SportAtlas (the "App") allows you to remove all or specific tactical data:
             </p>
             <div className="bg-[#0b1224] border border-slate-800 p-6 rounded-3xl space-y-6">
               <div className="space-y-2">
                 <p className="text-ha-brand text-[10px] font-black uppercase tracking-widest">Option 1: In-App (Instant)</p>
                 <ul className="text-slate-300 text-xs font-bold uppercase space-y-2">
-                  <li className="flex gap-3"><span className="text-slate-600 italic">1.</span> Open HoopsAtlas & Login</li>
+                  <li className="flex gap-3"><span className="text-slate-600 italic">1.</span> Open SportAtlas & Login</li>
                   <li className="flex gap-3"><span className="text-slate-600 italic">2.</span> Go to Platform Office (Settings)</li>
                   <li className="flex gap-3"><span className="text-slate-600 italic">3.</span> Tap "Permanently Delete Account"</li>
                 </ul>
@@ -168,7 +168,7 @@ const AccountDeletion: React.FC<AccountDeletionProps> = ({ onBack }) => {
         </div>
       </div>
 
-      <p className="text-center text-[8px] font-black text-slate-800 uppercase tracking-[0.5em]">HoopsAtlas • Data Privacy Protocol • Est. 2026</p>
+      <p className="text-center text-[8px] font-black text-slate-800 uppercase tracking-[0.5em]">SportAtlas • Data Privacy Protocol • Est. 2026</p>
     </div>
   );
 };

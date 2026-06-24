@@ -197,7 +197,7 @@ const PartnerPage: React.FC<PartnerPageProps> = ({ onBack }) => {
         </div>
 
         <div className="flex flex-col items-center gap-4 opacity-20">
-          <p className="text-center text-[8px] font-black text-slate-600 uppercase tracking-[0.5em]">HOOPSATLAS PARTNER PROGRAM • EST. 2026</p>
+          <p className="text-center text-[8px] font-black text-slate-600 uppercase tracking-[0.5em]">SPORTATLAS PARTNER PROGRAM • EST. 2026</p>
         </div>
       </div>
     );
@@ -255,7 +255,7 @@ const PartnerPage: React.FC<PartnerPageProps> = ({ onBack }) => {
           </h1>
         </div>
         <p className="max-w-xl text-slate-500 text-sm md:text-lg font-medium leading-relaxed uppercase tracking-tight mx-auto md:mx-0">
-          Promote HoopsAtlas to your community and earn commissions for every new paying member you bring in.
+          Promote SportAtlas to your community and earn commissions for every new paying member you bring in.
         </p>
       </section>
 
@@ -355,7 +355,7 @@ const PartnerPage: React.FC<PartnerPageProps> = ({ onBack }) => {
               </div>
 
               <div className="space-y-2">
-                <label className={labelClass}>How do you plan to promote HoopsAtlas?</label>
+                <label className={labelClass}>How do you plan to promote SportAtlas?</label>
                 <textarea required value={promotionPlan} onChange={e => setPromotionPlan(e.target.value)} placeholder="e.g. Instagram posts, newsletter, club announcements, YouTube videos..." className={inputClass + " min-h-[100px] resize-none"} />
               </div>
 
@@ -406,7 +406,7 @@ const PartnerPage: React.FC<PartnerPageProps> = ({ onBack }) => {
             <div className="space-y-5">
               {[
                 { icon: '🏀', title: 'Basketball Clubs', desc: 'Share your code with members, parents, and fans.' },
-                { icon: '📋', title: 'Coaches', desc: 'Recommend HoopsAtlas to your players and fellow coaches.' },
+                { icon: '📋', title: 'Coaches', desc: 'Recommend SportAtlas to your players and fellow coaches.' },
                 { icon: '📱', title: 'Influencers & Pages', desc: 'Basketball Instagram, TikTok, or YouTube creators.' },
                 { icon: '🏢', title: 'Businesses', desc: 'Sports shops, academies, or any basketball-related business.' },
                 { icon: '👥', title: 'Communities', desc: 'WhatsApp groups, Discord servers, or local leagues.' },
@@ -435,7 +435,7 @@ const PartnerPage: React.FC<PartnerPageProps> = ({ onBack }) => {
       </div>
 
       <div className="flex flex-col items-center gap-4 opacity-20">
-        <p className="text-center text-[8px] font-black text-slate-600 uppercase tracking-[0.5em]">HOOPSATLAS PARTNER PROGRAM • EST. 2026</p>
+        <p className="text-center text-[8px] font-black text-slate-600 uppercase tracking-[0.5em]">SPORTATLAS PARTNER PROGRAM • EST. 2026</p>
       </div>
     </div>
   );

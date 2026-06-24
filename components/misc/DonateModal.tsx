@@ -81,7 +81,7 @@ const DonateModal: React.FC<DonateModalProps> = ({ isOpen, onClose, matchCode })
           </div>
 
           <div className="space-y-2">
-            <h3 className="text-3xl font-black text-white uppercase italic tracking-tight">Support HoopsAtlas</h3>
+            <h3 className="text-3xl font-black text-white uppercase italic tracking-tight">Support SportAtlas</h3>
             <p className="text-slate-400 text-xs font-bold uppercase tracking-widest leading-relaxed">
               Bedankt! Jouw steun maakt het mogelijk<br/>om gratis wedstrijden te blijven filmen.
             </p>

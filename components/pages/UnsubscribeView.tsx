@@ -131,7 +131,7 @@ const UnsubscribeView: React.FC<UnsubscribeViewProps> = ({ onBack }) => {
           </div>
         )}
         
-        <p className="text-[8px] font-black text-slate-800 uppercase tracking-[0.5em] pt-4">HoopsAtlas Privacy Protocol</p>
+        <p className="text-[8px] font-black text-slate-800 uppercase tracking-[0.5em] pt-4">SportAtlas Privacy Protocol</p>
       </div>
     </div>
   );

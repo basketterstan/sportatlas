@@ -50,7 +50,7 @@ const AdBanner: React.FC<AdBannerProps> = ({ isPaid, adSlot = "auto", onUpgrade 
              data-ad-format="auto"
              data-full-width-responsive="true"></ins>
       </div>
-      <p className="text-center text-[7px] text-slate-800 font-bold uppercase tracking-tighter">Advertisements support the free version of HoopsAtlas</p>
+      <p className="text-center text-[7px] text-slate-800 font-bold uppercase tracking-tighter">Advertisements support the free version of SportAtlas</p>
     </div>
   );
 };

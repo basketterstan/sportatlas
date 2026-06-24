@@ -128,6 +128,7 @@ export interface UserProfile {
   isTester?: boolean;
   isStreamer?: boolean;
   language?: 'en' | 'nl' | 'es';
+  sport?: Sport;
   referralCode?: string;
   referredBy?: string;
   referralCount?: number;

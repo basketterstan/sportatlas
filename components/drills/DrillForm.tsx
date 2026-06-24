@@ -163,7 +163,7 @@ const DrillForm: React.FC<DrillFormProps> = ({
           messages: [
             {
               role: 'system',
-              content: `You are the HoopsAtlas Master Coach. You provide elite tactical data in RAW JSON.
+              content: `You are the SportAtlas Master Coach. You provide elite tactical data in RAW JSON.
               STRICT RULE: Return ONLY valid JSON. NEVER include conversational text, warnings, or explanations.
 
               COURT BOUNDARIES: Half-court (X 5-95, Y 5-89), Full-court (X 5-183, Y 5-95).

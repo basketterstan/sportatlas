@@ -61,7 +61,7 @@ const TikTokStudio: React.FC<TikTokStudioProps> = ({ drills, publicDrills, onDri
       const suffix = carouselIndex === 0 ? 'COVER' : 
                      carouselIndex === totalSlides - 1 ? 'BRAND' : 
                      `FRAME_${carouselIndex}`;
-      link.download = `hoopsatlas_HD_${suffix}_${Date.now()}.png`;
+      link.download = `sportatlas_HD_${suffix}_${Date.now()}.png`;
       link.href = image;
       link.click();
     } catch (e) {

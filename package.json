@@ -29,7 +29,7 @@
     "openai": "^6.34.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tsx": "^4.21.0"
+    "tsx": "^4.22.4"
   },
   "devDependencies": {
     "@capacitor/cli": "^8.1.0",

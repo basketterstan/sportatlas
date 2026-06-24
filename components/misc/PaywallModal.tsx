@@ -149,7 +149,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onSuccess,
           <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-xl">
             <span className="text-white font-black text-2xl italic">H</span>
           </div>
-          <h2 className="text-2xl font-black text-white uppercase tracking-tight">HoopsAtlas Pro</h2>
+          <h2 className="text-2xl font-black text-white uppercase tracking-tight">SportAtlas Pro</h2>
           <p className="text-slate-400 text-xs mt-1 font-medium">Unlock all coaching tools & AI features</p>
         </div>
 

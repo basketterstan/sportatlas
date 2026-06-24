@@ -40,7 +40,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ item, itemType, onClose }) => {
       try {
         await (navigator as any).share({
           title: 'title' in item ? item.title : item.name,
-          text: `Check out this ${itemType} on HoopsAtlas!`,
+          text: `Check out this ${itemType} on SportAtlas!`,
           url: shareUrl,
         });
       } catch (e) {

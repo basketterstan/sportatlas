@@ -257,8 +257,8 @@ const DrillLibrary: React.FC<DrillLibraryProps> = ({
                           onClick={async (e) => {
                             e.stopPropagation();
                             const shareData = {
-                              title: `HoopsAtlas: ${drill.title}`,
-                              text: `Check out this ${drill.type === 'play' ? 'tactical play' : 'basketball drill'} on HoopsAtlas: ${drill.title}`,
+                              title: `SportAtlas: ${drill.title}`,
+                              text: `Check out this ${drill.type === 'play' ? 'tactical play' : 'drill'} on SportAtlas: ${drill.title}`,
                               url: `${window.location.origin}?drillId=${drill.id}`
                             };
                             if (navigator.share && navigator.canShare(shareData)) {
@@ -272,7 +272,7 @@ const DrillLibrary: React.FC<DrillLibraryProps> = ({
                                 await navigator.clipboard.writeText(shareData.url);
                                 alert("Link copied to clipboard!");
                               } catch (err) {
-                                const mailto = `mailto:?subject=Check out this drill on HoopsAtlas&body=Hey! Check out this ${drill.type === 'play' ? 'play' : 'drill'} I found on HoopsAtlas: ${drill.title}. View it here: ${shareData.url}`;
+                                const mailto = `mailto:?subject=Check out this drill on SportAtlas&body=Hey! Check out this ${drill.type === 'play' ? 'play' : 'drill'} I found on SportAtlas: ${drill.title}. View it here: ${shareData.url}`;
                                 window.location.href = mailto;
                               }
                             }

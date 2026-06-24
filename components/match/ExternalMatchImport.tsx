@@ -223,7 +223,7 @@ const ExternalMatchImport: React.FC<ExternalMatchImportProps> = ({ team, onClose
           date: match.date,
           time: match.time,
           location: match.location,
-          description: `Imported from Basketball Vlaanderen via HoopsAtlas.\nCompetition: ${match.competition}`,
+          description: `Imported from Basketball Vlaanderen via SportAtlas.\nCompetition: ${match.competition}`,
           createdAt: Date.now()
         };
         return addDoc(collection(db, 'events'), event);

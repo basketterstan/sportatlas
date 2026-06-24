@@ -271,10 +271,10 @@ const MatchArchive: React.FC<MatchArchiveProps> = ({ userProfile, onBack, onNavi
              <div className="space-y-2">
                <p className="text-[11px] font-black text-ha-brand uppercase tracking-widest">You can watch this game for free.</p>
                <p className="text-slate-300 text-sm font-medium leading-relaxed max-w-xl">
-                 Would you like to help HoopsAtlas grow and support us in continuing to improve games, highlights, and tools for coaches?
+                 Would you like to help SportAtlas grow and support us in continuing to improve games, highlights, and tools for coaches?
                </p>
                <p className="text-slate-500 text-xs font-medium leading-relaxed max-w-xl">
-                 With a voluntary donation, you directly support the development of HoopsAtlas. Every contribution, big or small, helps us make basketball more accessible and more visible.
+                 With a voluntary donation, you directly support the development of SportAtlas. Every contribution, big or small, helps us make sports more accessible and more visible.
                </p>
              </div>
              <button
@@ -358,7 +358,7 @@ const MatchArchive: React.FC<MatchArchiveProps> = ({ userProfile, onBack, onNavi
           </div>
           <div className="text-left">
             <p className="text-[11px] font-black text-white uppercase tracking-widest">{t.supportCameraMan}</p>
-            <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wide">HoopsAtlas films games for free for the Belgian basketball community</p>
+            <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wide">SportAtlas films games for free for the Belgian basketball community</p>
           </div>
         </div>
         <span className="text-[10px] font-black text-ha-brand uppercase tracking-widest shrink-0 group-hover:translate-x-1 transition-transform">{t.donate}</span>
@@ -569,10 +569,10 @@ const MatchArchive: React.FC<MatchArchiveProps> = ({ userProfile, onBack, onNavi
             <div className="space-y-4">
               <p className="text-[11px] font-black text-ha-brand uppercase tracking-widest">You can watch this game for free.</p>
               <p className="text-white text-base font-bold leading-relaxed">
-                Would you like to help HoopsAtlas grow and support us in continuing to improve games, highlights, and tools for coaches?
+                Would you like to help SportAtlas grow and support us in continuing to improve games, highlights, and tools for coaches?
               </p>
               <p className="text-slate-400 text-sm font-medium leading-relaxed">
-                With a voluntary donation, you directly support the development of HoopsAtlas. Every contribution, big or small, helps us make basketball more accessible and more visible.
+                With a voluntary donation, you directly support the development of SportAtlas. Every contribution, big or small, helps us make sports more accessible and more visible.
               </p>
             </div>
 

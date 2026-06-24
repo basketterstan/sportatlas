@@ -314,7 +314,7 @@ const MatchUploadForm: React.FC<MatchUploadFormProps> = ({ userProfile, onBack, 
                    </div>
                  )}
                  <p className="text-[8px] text-slate-600 font-bold uppercase tracking-widest text-center italic">
-                   {storageNode === 'youtube' ? 'Video speelt direct in de app zonder door te sturen naar YouTube.' : 'HoopsAtlas refereert naar deze externe bron voor tactische analyse.'}
+                   {storageNode === 'youtube' ? 'Video speelt direct in de app zonder door te sturen naar YouTube.' : 'SportAtlas refereert naar deze externe bron voor tactische analyse.'}
                  </p>
               </div>
             )}
