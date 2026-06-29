@@ -10,6 +10,7 @@ import { db } from '../../utils/firebase';
 import { CommunityPost, UserProfile } from '../../types';
 import CoachHubPost from './CoachHubPost';
 import { getTranslation } from '../../utils/i18n';
+import { callAI } from '../../utils/ai';
 
 interface ChannelMessage {
   id: string;
@@ -253,28 +254,22 @@ const CoachHub: React.FC<Props> = ({ user, userProfile, onBack }) => {
   };
 
   const handleGenerateAIPost = async () => {
-    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
-    if (!apiKey) { alert('Add VITE_OPENAI_API_KEY to your .env and rebuild.'); return; }
     setGeneratingAI(true); setAiSuccess('');
     const nonPro = CHANNELS.filter(c => !c.proOnly);
     const channel = nonPro[Math.floor(Math.random() * nonPro.length)];
     const topics = AI_TOPICS[channel.id] ?? ['basketball coaching tips'];
     const topic = topics[Math.floor(Math.random() * topics.length)];
     try {
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            { role: 'system', content: AI_PERSONA },
-            { role: 'user', content: `Write a post for the "${channel.label}" channel about: ${topic}.\nReturn JSON only: {"title":"...","content":"..."}` },
-          ],
-          temperature: 0.85, max_tokens: 300,
-        }),
+      const raw = await callAI({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: AI_PERSONA },
+          { role: 'user', content: `Write a post for the "${channel.label}" channel about: ${topic}.\nReturn JSON only: {"title":"...","content":"..."}` },
+        ],
+        temperature: 0.85,
+        max_tokens: 300,
       });
-      const data = await res.json();
-      const { title, content } = JSON.parse(data.choices[0].message.content.trim());
+      const { title, content } = JSON.parse(raw.trim());
       await addDoc(collection(db, 'communityPosts'), {
         channelId: channel.id,
         authorId: user.uid,

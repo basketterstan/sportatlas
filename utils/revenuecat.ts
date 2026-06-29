@@ -60,7 +60,7 @@ const configureNative = async (userId?: string) => {
   }
   try {
     if (!nativeConfigured) {
-      await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
+      await Purchases.setLogLevel({ level: import.meta.env.DEV ? LOG_LEVEL.DEBUG : LOG_LEVEL.ERROR });
       await Purchases.configure({ apiKey: APPLE_KEY });
       nativeConfigured = true;
     }

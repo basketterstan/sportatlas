@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 interface AccountDeletionProps {
   onBack: () => void;
@@ -17,21 +18,21 @@ const AccountDeletion: React.FC<AccountDeletionProps> = ({ onBack }) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Using the established Google Forms bridge for privacy requests
-    const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSd-FFLEi_FxOfes8RtN4aEKhkisTwazbYOwYejdRgozfI1y1w/formResponse';
-    
-    const formData = new FormData();
-    const typeLabel = requestType === 'full' ? 'FULL ACCOUNT WIPEOUT' : 'PARTIAL DATA ERASURE';
-    formData.append('entry.1029448291', `${typeLabel}: ${name}`);
-    formData.append('entry.218947921', email);
-    formData.append('entry.315525986', `Request Type: ${requestType}. Reason: ${reason}. Instructions: Please purge all specified SportAtlas tactical data.`);
-
     try {
-      await fetch(GOOGLE_FORM_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        body: formData
-      });
+      if (requestType === 'full') {
+        // Full account deletion via Cloud Function (GDPR Art. 17 — automated)
+        const functions = getFunctions();
+        const selfDelete = httpsCallable(functions, 'selfDeleteAccount');
+        await selfDelete({});
+      } else {
+        // Partial data erasure — route via email since it requires manual review
+        const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSd-FFLEi_FxOfes8RtN4aEKhkisTwazbYOwYejdRgozfI1y1w/formResponse';
+        const formData = new FormData();
+        formData.append('entry.1029448291', `PARTIAL DATA ERASURE: ${name}`);
+        formData.append('entry.218947921', email);
+        formData.append('entry.315525986', `Request Type: data-only. Reason: ${reason}.`);
+        await fetch(GOOGLE_FORM_URL, { method: 'POST', mode: 'no-cors', body: formData });
+      }
       setIsSuccess(true);
     } catch (error) {
       alert("Technical error. Please try again or contact support directly.");

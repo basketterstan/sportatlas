@@ -31,8 +31,22 @@ async function startServer() {
 
   console.log(`[Server] Initializing on port ${PORT}...`);
 
-  app.use(cors());
-  app.use(express.json());
+  const ALLOWED_ORIGINS = [
+    "https://hoopsatlas.com",
+    "https://app.hoopsatlas.com",
+    "https://www.hoopsatlas.com",
+    "http://localhost:3000",
+  ];
+  app.use(cors({
+    origin: (origin, callback) => {
+      if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    }
+  }));
+  app.use(express.json({ limit: "64kb" }));
 
   // Verify Firebase ID token via REST (no admin SDK needed)
   const verifyFirebaseToken = async (token: string): Promise<boolean> => {
@@ -49,6 +63,9 @@ async function startServer() {
     }
   };
 
+  const ALLOWED_MODELS = new Set(["gpt-4o", "gpt-4o-mini", "gpt-4-turbo"]);
+  const MAX_TOKENS_CAP = 2000;
+
   // AI proxy endpoint — OpenAI key stays on the server, never sent to browser
   app.post("/api/ai/chat", async (req: Request, res: Response) => {
     const authHeader = req.headers.authorization;
@@ -61,18 +78,26 @@ async function startServer() {
       return res.status(401).json({ error: "Invalid or expired token" });
     }
 
-    const { model, messages, response_format, max_tokens, temperature } = req.body;
-    if (!messages || !Array.isArray(messages)) {
+    const { messages, response_format, temperature } = req.body;
+    const model = ALLOWED_MODELS.has(req.body.model) ? req.body.model : "gpt-4o";
+    const max_tokens = Math.min(Number(req.body.max_tokens) || 1000, MAX_TOKENS_CAP);
+
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return res.status(400).json({ error: "messages array required" });
     }
+
+    const sanitizedMessages = messages.map((m: any) => ({
+      role: ["system", "user", "assistant"].includes(m.role) ? m.role : "user",
+      content: typeof m.content === "string" ? m.content.slice(0, 8000) : "",
+    }));
 
     try {
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
       const completion = await openai.chat.completions.create({
-        model: model || "gpt-4o",
-        messages,
+        model,
+        messages: sanitizedMessages,
+        max_tokens,
         ...(response_format && { response_format }),
-        ...(max_tokens && { max_tokens }),
         ...(temperature !== undefined && { temperature }),
       });
       res.json({ content: completion.choices[0]?.message?.content || "" });
@@ -168,9 +193,12 @@ async function startServer() {
     res.status(404).json({ error: "Failed to fetch clubs from VBL. The API might be temporarily unavailable." });
   });
 
+  const isValidVblId = (id: string) => /^[\w\-]{1,64}$/.test(id);
+
   // Get teams for a club
   app.get("/api/vbl/club/:clubId/teams", async (req: Request, res: Response) => {
     const { clubId } = req.params;
+    if (!isValidVblId(clubId)) return res.status(400).json({ error: "Invalid clubId" });
     const endpoints = [
       `/Clubs/${clubId}/Teams`, 
       `/Team/GetTeamsByClub?clubGuid=${clubId}`, 
@@ -192,6 +220,7 @@ async function startServer() {
   // Get matches for a team
   app.get("/api/vbl/team/:teamId/matches", async (req: Request, res: Response) => {
     const { teamId } = req.params;
+    if (!isValidVblId(teamId)) return res.status(400).json({ error: "Invalid teamId" });
     const endpoints = [
       `/Teams/${teamId}/Matches`, 
       `/Match/GetMatchesByTeam?teamGuid=${teamId}`, 
@@ -213,6 +242,7 @@ async function startServer() {
   // Get team details by ID
   app.get("/api/vbl/team/:teamId", async (req: Request, res: Response) => {
     const { teamId } = req.params;
+    if (!isValidVblId(teamId)) return res.status(400).json({ error: "Invalid teamId" });
     const endpoints = [`/Teams/${teamId}`, `/Team/GetTeam?teamGuid=${teamId}`, `/Team/${teamId}`];
     
     for (const endpoint of endpoints) {
@@ -253,6 +283,7 @@ async function startServer() {
   // Get matches for a competition
   app.get("/api/vbl/competition/:compId/matches", async (req: Request, res: Response) => {
     const { compId } = req.params;
+    if (!isValidVblId(compId)) return res.status(400).json({ error: "Invalid compId" });
     const endpoints = [
       `/Competitions/${compId}/Matches`, 
       `/Match/GetMatchesByCompetition?competitionGuid=${compId}`, 

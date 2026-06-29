@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: 'dist',
-      sourcemap: true,
+      sourcemap: false,
       // Strip console.* and debugger statements from production bundles
       minify: 'esbuild',
     },

@@ -167,7 +167,7 @@ service cloud.firestore {
       allow create: if true;
       allow read: if isAdmin() || (isSignedIn() && resource.data.email == request.auth.token.email);
       allow write: if isAdmin();
-      allow list: if isAdmin() || isSignedIn();
+      allow list: if isAdmin();
     }
 
     match /cancellation_requests/{id} {
@@ -311,7 +311,8 @@ service cloud.firestore {
 
     match /visionAnalyses/{id} {
       allow read, list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
-      allow write: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
     }
 
     match /playerProfiles/{profileId} {

@@ -2,13 +2,22 @@
 node_modules/
 
 # Build output
-# dist/
+dist/
 build/
+functions/lib/
 
 # Environment variables — NEVER commit these
 .env
 .env.local
+.env.production
 .env.*.local
+
+# Firebase / Google credentials — NOOIT committen
+google-services.json
+android/app/google-services.json
+GoogleService-Info.plist
+ios/App/App/GoogleService-Info.plist
+firebase-applet-config.json
 
 # Logs
 *.log
