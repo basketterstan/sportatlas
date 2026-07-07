@@ -9,9 +9,12 @@ interface PaywallModalProps {
   onWebFallback?: () => void;
   isLoggedIn?: boolean;
   onRequestLogin?: () => void;
+  targetPlan?: string;
 }
 
-const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onSuccess, onWebFallback, isLoggedIn = true, onRequestLogin }) => {
+const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onSuccess, onWebFallback, isLoggedIn = true, onRequestLogin, targetPlan }) => {
+
+  const isClubPlan = targetPlan && ['club10', 'club20', 'clubUnlimited', 'clubunlimited'].includes(targetPlan);
   const [offering, setOffering] = useState<RCOffering | null>(null);
   const [selected, setSelected] = useState<RCPackage | null>(null);
   const [loading, setLoading] = useState(false);
@@ -146,10 +149,10 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onSuccess,
           <button onClick={onClose} className="absolute top-4 right-4 p-2 text-slate-500 hover:text-white">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
-          <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-xl">
-            <span className="text-white font-black text-2xl italic">H</span>
+          <div className="w-14 h-14 bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-xl overflow-hidden border border-slate-700">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
           </div>
-          <h2 className="text-2xl font-black text-white uppercase tracking-tight">SportAtlas Pro</h2>
+          <h2 className="text-2xl font-black text-white uppercase tracking-tight">SportAtlas Premium</h2>
           <p className="text-slate-400 text-xs mt-1 font-medium">Unlock all coaching tools & AI features</p>
         </div>
 
@@ -163,6 +166,25 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onSuccess,
           ))}
         </div>
 
+        {/* Club plan redirect banner */}
+        {isClubPlan && (
+          <div className="mx-6 mb-2 p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-start gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" className="shrink-0 mt-0.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <div>
+              <p className="text-amber-400 font-black text-xs uppercase tracking-wider">Club subscription</p>
+              <p className="text-slate-400 text-[11px] mt-1 leading-relaxed">
+                Club plans are managed via our website. Visit <span className="text-blue-400 font-bold">app.sportatlas.com</span> to subscribe with your club.
+              </p>
+              <button
+                onClick={() => { window.open('https://app.sportatlas.com', '_blank'); onClose(); }}
+                className="mt-2 text-[10px] text-amber-400 hover:text-amber-300 font-black uppercase tracking-widest underline transition-colors"
+              >
+                Go to website →
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Packages */}
         <div className="px-6 py-3 space-y-2">
           {loadingOfferings ? (
@@ -170,37 +192,69 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onSuccess,
               <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
             </div>
           ) : error ? null : offering?.availablePackages.length ? (
-            offering.availablePackages.map(pkg => {
-              const label = getPlanLabel(pkg);
-              const isSelected = selected?.identifier === pkg.identifier;
-              return (
-                <button
-                  key={pkg.identifier}
-                  onClick={() => setSelected(pkg)}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl border-2 transition-all ${
-                    isSelected ? 'border-blue-500 bg-blue-500/10' : 'border-slate-700 bg-slate-800/50'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isSelected ? 'border-blue-500' : 'border-slate-600'}`}>
-                      {isSelected && <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />}
-                    </div>
-                    <div className="text-left">
-                      <div className="flex items-center gap-2">
-                        <span className="text-white font-bold text-sm">{label.name}</span>
-                        {label.badge && (
-                          <span className={`${label.color} text-white text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full`}>
-                            {label.badge}
-                          </span>
-                        )}
+            offering.availablePackages
+              .filter(pkg => {
+                const id = pkg.productIdentifier.toLowerCase();
+                return id.includes('basic') || id.includes('pro');
+              })
+              .map(pkg => {
+                const label = getPlanLabel(pkg);
+                const isSelected = selected?.identifier === pkg.identifier;
+                return (
+                  <button
+                    key={pkg.identifier}
+                    onClick={() => setSelected(pkg)}
+                    className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl border-2 transition-all ${
+                      isSelected ? 'border-blue-500 bg-blue-500/10' : 'border-slate-700 bg-slate-800/50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isSelected ? 'border-blue-500' : 'border-slate-600'}`}>
+                        {isSelected && <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />}
+                      </div>
+                      <div className="text-left">
+                        <div className="flex items-center gap-2">
+                          <span className="text-white font-bold text-sm">{label.name}</span>
+                          {label.badge && (
+                            <span className={`${label.color} text-white text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full`}>
+                              {label.badge}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <span className="text-white font-black text-sm">{pkg.localizedPriceString}</span>
-                </button>
-              );
-            })
+                    <span className="text-white font-black text-sm">{pkg.localizedPriceString}</span>
+                  </button>
+                );
+              })
           ) : null}
+
+          {/* Static fallback prices when no offerings loaded */}
+          {!loadingOfferings && !error && !offering?.availablePackages.length && (
+            <>
+              {[
+                { id: 'basic_year',  name: 'Basic Yearly',  price: '€99.99', badge: 'Save 17%', badgeColor: 'bg-blue-500' },
+                { id: 'basic_month', name: 'Basic Monthly', price: '€9.99',  badge: '',          badgeColor: '' },
+                { id: 'pro_year',    name: 'Pro Yearly',    price: '€149.99', badge: 'Best Value', badgeColor: 'bg-amber-500' },
+                { id: 'pro_month',   name: 'Pro Monthly',   price: '€14.99', badge: '',           badgeColor: '' },
+              ].map(item => (
+                <div key={item.id} className="w-full flex items-center justify-between px-4 py-3 rounded-2xl border-2 border-slate-700 bg-slate-800/50 opacity-60">
+                  <div className="flex items-center gap-3">
+                    <div className="w-5 h-5 rounded-full border-2 border-slate-600" />
+                    <div className="flex items-center gap-2">
+                      <span className="text-white font-bold text-sm">{item.name}</span>
+                      {item.badge && (
+                        <span className={`${item.badgeColor} text-white text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full`}>
+                          {item.badge}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <span className="text-white font-black text-sm">{item.price}</span>
+                </div>
+              ))}
+            </>
+          )}
         </div>
 
         {error && (
@@ -253,14 +307,14 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onSuccess,
           <p className="text-center text-[9px] text-slate-600 leading-relaxed">
             By subscribing you agree to our{' '}
             <button
-              onClick={() => window.open('https://app.hoopsatlas.com/terms', '_blank')}
+              onClick={() => window.open('https://app.sportatlas.com/terms', '_blank')}
               className="text-slate-400 underline"
             >
               Terms of Use
             </button>
             {' '}and{' '}
             <button
-              onClick={() => window.open('https://app.hoopsatlas.com/privacy', '_blank')}
+              onClick={() => window.open('https://app.sportatlas.com/privacy', '_blank')}
               className="text-slate-400 underline"
             >
               Privacy Policy

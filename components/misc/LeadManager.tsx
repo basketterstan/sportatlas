@@ -6,7 +6,7 @@ import { callAI } from '../../utils/ai';
 
 const LeadManager: React.FC = () => {
   const [leads, setLeads] = useState<Lead[]>(() => {
-    const saved = localStorage.getItem('hoopsatlas_leads_db_v2');
+    const saved = localStorage.getItem('sportatlas_leads_db_v2');
     try {
       return saved ? JSON.parse(saved) : [];
     } catch (e) {
@@ -26,7 +26,7 @@ const LeadManager: React.FC = () => {
   useEffect(() => {
     // Ensure data is sanitized before stringifying to prevent circular structure errors
     const sanitizedLeads = cleanObject(leads);
-    localStorage.setItem('hoopsatlas_leads_db_v2', JSON.stringify(sanitizedLeads));
+    localStorage.setItem('sportatlas_leads_db_v2', JSON.stringify(sanitizedLeads));
   }, [leads]);
 
   const handleAiSearch = async (regionOverride?: string) => {
@@ -272,7 +272,7 @@ const LeadManager: React.FC = () => {
               <button onClick={() => setShowHistory(!showHistory)} className="flex-1 bg-slate-900 text-slate-400 rounded-2xl text-[8px] font-black uppercase border border-slate-800 hover:text-white transition-all">
                 {showHistory ? 'Database' : 'Archive'}
               </button>
-              <button onClick={() => { if(window.confirm("Purge DB?")) { setLeads([]); localStorage.removeItem('hoopsatlas_leads_db_v2'); } }} className="flex-1 bg-red-950/20 text-red-500/50 hover:text-red-500 rounded-2xl text-[8px] font-black uppercase border border-red-900/10 transition-all">Purge</button>
+              <button onClick={() => { if(window.confirm("Purge DB?")) { setLeads([]); localStorage.removeItem('sportatlas_leads_db_v2'); } }} className="flex-1 bg-red-950/20 text-red-500/50 hover:text-red-500 rounded-2xl text-[8px] font-black uppercase border border-red-900/10 transition-all">Purge</button>
            </div>
         </div>
 

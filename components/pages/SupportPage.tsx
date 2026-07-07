@@ -201,7 +201,7 @@ const SupportPage: React.FC<SupportPageProps> = ({ onBack }) => {
                 <div>
                   <p className="text-[11px] font-black text-white uppercase tracking-widest">Direct Email</p>
                   <p className="text-[10px] text-slate-500 font-medium uppercase tracking-tight mt-1 leading-relaxed">
-                    For urgent billing issues, contact us at <span className="text-indigo-400">support@hoopsatlas.com</span>
+                    For urgent billing issues, contact us at <span className="text-indigo-400">support@sportatlas.com</span>
                   </p>
                 </div>
               </div>

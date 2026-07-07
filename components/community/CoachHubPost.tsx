@@ -9,7 +9,7 @@ import {
 import { db } from '../../utils/firebase';
 import { CommunityPost, CommunityReply, UserProfile } from '../../types';
 
-const ADMIN_EMAIL = 'contact@hoopsatlas.com';
+const ADMIN_EMAIL = 'contact@sportatlas.com';
 
 const CHANNEL_LABELS: Record<string, string> = {
   general: 'General Chat', drills: 'Drills & Practice', offense: 'Offense & Plays',

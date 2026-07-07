@@ -287,7 +287,7 @@ const App: React.FC = () => {
     return (
       <div className="min-h-screen bg-ha-bg flex flex-col items-center justify-center gap-6">
         <div className="w-16 h-16 bg-ha-brand rounded-2xl animate-pulse"></div>
-        <div className="text-slate-400 text-sm animate-pulse">HoopsAtlas wordt geladen...</div>
+        <div className="text-slate-400 text-sm animate-pulse">SportAtlas wordt geladen...</div>
         <button
           onClick={() => setAuthLoading(false)}
           className="mt-8 text-slate-500 text-xs hover:text-slate-300 transition-colors"
@@ -432,6 +432,7 @@ const App: React.FC = () => {
         }}
         onWebFallback={() => subscription.setShowPaywall(false)}
         isLoggedIn={!!user}
+        targetPlan={subscription.checkoutPlan ?? undefined}
         onRequestLogin={() => {
           subscription.setShowPaywall(false);
           nav.handleNavigate('auth', undefined, 'signup');

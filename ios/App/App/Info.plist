@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-        <string>HoopsAtlas</string>
+        <string>SportAtlas</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -53,14 +53,14 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>HoopsAtlas needs access to your camera to take player photos and record game highlights.</string>
+	<string>SportAtlas needs access to your camera to take player photos and record game highlights.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>HoopsAtlas needs access to your microphone to record game commentary and highlights.</string>
+	<string>SportAtlas needs access to your microphone to record game commentary and highlights.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>HoopsAtlas uses your location to find nearby basketball courts and sports facilities.</string>
+	<string>SportAtlas uses your location to find nearby sports facilities.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>HoopsAtlas needs access to your photo library to save and upload game photos.</string>
+	<string>SportAtlas needs access to your photo library to save and upload photos.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>HoopsAtlas needs access to your photo library to save game photos.</string>
+	<string>SportAtlas needs access to your photo library to save photos.</string>
 </dict>
 </plist>

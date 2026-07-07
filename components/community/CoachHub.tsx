@@ -33,7 +33,7 @@ const AI_TOPICS: Record<string, string[]> = {
   pro: ['in-season load management', 'film session strategy', 'building a scouting system', 'developing a coaching philosophy'],
 };
 
-const ADMIN_EMAIL = 'contact@hoopsatlas.com';
+const ADMIN_EMAIL = 'contact@sportatlas.com';
 
 type FilterTab = 'all' | 'new' | 'popular' | 'pinned';
 type ChannelTab = 'posts' | 'chat';

@@ -3,8 +3,8 @@ import { Drill } from '../types';
 import { cleanObject, cleanRecord } from './firebase';
 import { toast } from './toast';
 
-const STORAGE_KEY = 'hoopsatlas_drills_v1';
-const DRAFT_KEY = 'hoopsatlas_draft_v1';
+const STORAGE_KEY = 'sportatlas_drills_v1';
+const DRAFT_KEY = 'sportatlas_draft_v1';
 
 export const loadDrillsFromStorage = (): Drill[] => {
   try {
@@ -80,7 +80,7 @@ export const exportDrillsAsJSON = (drills: Drill[]) => {
     const sanitized = cleanObject(drills);
     const dataStr = JSON.stringify(sanitized, null, 2);
     const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-    const exportFileDefaultName = `hoopsatlas_backup_${new Date().toISOString().split('T')[0]}.json`;
+    const exportFileDefaultName = `sportatlas_backup_${new Date().toISOString().split('T')[0]}.json`;
 
     const linkElement = document.createElement('a');
     linkElement.setAttribute('href', dataUri);

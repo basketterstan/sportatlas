@@ -425,7 +425,7 @@ const PartnerPage: React.FC<PartnerPageProps> = ({ onBack }) => {
           <div className="bg-slate-900/50 border border-white/5 p-10 rounded-[3rem] space-y-4">
             <h3 className="text-xl font-black italic uppercase text-white tracking-tight">Questions?</h3>
             <p className="text-[10px] text-slate-500 font-medium uppercase tracking-tight leading-relaxed">
-              Contact us at <span className="text-ha-brand">contact@hoopsatlas.com</span> if you have questions before applying.
+              Contact us at <span className="text-ha-brand">contact@sportatlas.com</span> if you have questions before applying.
             </p>
             <p className="text-[9px] text-slate-700 font-black uppercase tracking-widest leading-relaxed">
               Applications are reviewed within 3–5 business days. You will be contacted via email.

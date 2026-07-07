@@ -597,7 +597,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ userProfile, onBack, on
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `hoopsatlas_personnel_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `sportatlas_personnel_${new Date().toISOString().split('T')[0]}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -627,7 +627,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ userProfile, onBack, on
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', `hoopsatlas_mailing_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `sportatlas_mailing_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
