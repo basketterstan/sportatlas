@@ -6,8 +6,8 @@ import { SubscriptionPlan } from '../types';
 const APPLE_KEY  = import.meta.env.VITE_REVENUECAT_APPLE_KEY  ?? '';
 const WEB_KEY    = import.meta.env.VITE_REVENUECAT_API_KEY    ?? '';
 
-const ENTITLEMENT_PRO   = 'hoopsatlas Pro';
-const ENTITLEMENT_BASIC = 'hoopsatlas Basic';
+const ENTITLEMENT_PRO   = 'pro';
+const ENTITLEMENT_BASIC = 'basic';
 
 const isNative = () => Capacitor.isNativePlatform();
 
