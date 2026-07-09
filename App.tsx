@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Capacitor } from '@capacitor/core';
+import { App as CapApp } from '@capacitor/app';
 import { collection, doc, updateDoc, setDoc, addDoc, writeBatch, increment } from 'firebase/firestore';
 import { db, cleanRecord } from './utils/firebase';
 import { Drill, SkillFocus, Level, SortOption } from './types';
@@ -160,6 +161,16 @@ const App: React.FC = () => {
     }
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [userProfile?.uid]);
+
+  // Sync subscription when user returns to app from Stripe browser (Android)
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform() || !user?.uid || !userProfile) return;
+    let listener: any;
+    CapApp.addListener('appStateChange', ({ isActive }) => {
+      if (isActive) subscription.syncSubscriptionStatus(true);
+    }).then(l => { listener = l; });
+    return () => { listener?.remove(); };
+  }, [user?.uid, userProfile?.uid]);
 
   // URL parameter handling
   useEffect(() => {

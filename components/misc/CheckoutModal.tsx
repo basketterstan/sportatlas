@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Capacitor } from '@capacitor/core';
+import { Browser } from '@capacitor/browser';
 import { SubscriptionPlan, ViewState } from '../../types';
 import { auth, db } from '../../utils/firebase';
 import { collection, addDoc, onSnapshot } from 'firebase/firestore';
@@ -133,7 +134,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, plan, pr
         if (unsub) unsub();
       }, 15000);
 
-      unsub = onSnapshot(sessionDocRef, (snap) => {
+      unsub = onSnapshot(sessionDocRef, async (snap) => {
         const data = snap.data() as any;
         if (!data) return;
         console.log(`[log] - Session update: ${JSON.stringify(data)}`);
@@ -142,8 +143,8 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, plan, pr
           console.log(`[log] - Redirecting to: ${data.url}`);
           unsub();
           if (Capacitor.isNativePlatform()) {
-            window.open(data.url, '_system');
             onClose();
+            await Browser.open({ url: data.url });
           } else {
             window.location.assign(data.url);
           }
