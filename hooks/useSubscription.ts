@@ -152,7 +152,7 @@ export function useSubscription(user: User | null, userProfile: UserProfile | nu
     console.debug('Upgrade clicked:', plan, cycle);
     const platform = Capacitor.getPlatform();
 
-    if (platform !== 'web') {
+    if (platform === 'ios') {
       setShowPaywall(true);
       return;
     }

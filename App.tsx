@@ -392,7 +392,7 @@ const App: React.FC = () => {
         )}
       </main>
 
-      {(Capacitor.getPlatform() === 'web' || subscription.checkoutPlan === 'gameAnalysis') && !!subscription.checkoutPlan && (subscription.checkoutPlan !== 'gameAnalysis' || gameAnalysisConfirmed) && (
+      {(Capacitor.getPlatform() !== 'ios' || subscription.checkoutPlan === 'gameAnalysis') && !!subscription.checkoutPlan && (subscription.checkoutPlan !== 'gameAnalysis' || gameAnalysisConfirmed) && (
         <CheckoutModal
           isOpen={true}
           onClose={() => { subscription.setCheckoutPlan(null); setGameAnalysisConfirmed(false); }}
