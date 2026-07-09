@@ -110,10 +110,13 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, plan, pr
     const uid = auth.currentUser.uid;
     console.log(`[log] - Initiating Stripe session for UID: ${uid}, Price: ${lookupKey}`);
     try {
+      const baseUrl = Capacitor.isNativePlatform()
+        ? 'https://app.sportatlas.app'
+        : window.location.origin;
       const sessionDocRef = await addDoc(collection(db, 'customers', uid, 'checkout_sessions'), {
         price: lookupKey,
-        success_url: window.location.origin + '/?status=success',
-        cancel_url: window.location.origin + '/?status=cancelled',
+        success_url: baseUrl + '/?status=success',
+        cancel_url: baseUrl + '/?status=cancelled',
         mode: 'subscription',
         allow_promotion_codes: true,
         currency: 'eur',
@@ -192,7 +195,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, plan, pr
             <TermRow icon="🔄" text={`Automatically renews ${period === 'month' ? 'every month' : 'every year'} at ${price}`} />
             <TermRow icon="❌" text="Cancel anytime in Google Play or App Settings before renewal date" />
             <TermRow icon="✅" text="A free plan is available — subscription is not required to use basic features" />
-            <TermRow icon="💳" text="Payment charged to your Google Play account upon confirmation" />
+            <TermRow icon="💳" text="Payment processed securely via Stripe upon confirmation" />
           </div>
 
 
