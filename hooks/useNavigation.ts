@@ -25,7 +25,7 @@ export function useNavigation(user: User | null, userProfile: UserProfile | null
     if (path === '/support') return 'support';
     if (path === '/privacy') return 'privacy';
     if (path === '/terms') return 'subscription-terms';
-    if (path === '/delete-data' || path === '/remove') return 'data-erasure';
+    if (path === '/delete-data' || path === '/remove' || path === '/delete-account') return 'data-erasure';
     if (path === '/partners') return 'partners';
     const vParam = new URLSearchParams(window.location.search).get('view');
     const parsedView = parseView(vParam);
@@ -55,7 +55,7 @@ export function useNavigation(user: User | null, userProfile: UserProfile | null
       if (path === '/privacy') { setView('privacy'); return; }
       if (path === '/support') { setView('support'); return; }
       if (path === '/terms') { setView('subscription-terms'); return; }
-      if (path === '/delete-data' || path === '/remove') { setView('data-erasure'); return; }
+      if (path === '/delete-data' || path === '/remove' || path === '/delete-account') { setView('data-erasure'); return; }
       if (path === '/partners') { setView('partners'); return; }
       const params = new URLSearchParams(window.location.search);
       const vParam = params.get('view');

@@ -591,6 +591,10 @@ const Settings: React.FC<SettingsProps> = ({ userProfile, onOpenAdmin, onNavigat
       </section>
 
       <div className="flex flex-col items-center gap-6 pt-10">
+        <button onClick={() => onNavigate('data-erasure')} className="w-full px-4 py-5 bg-red-500/5 border border-red-500/20 text-red-500/70 text-[10px] font-black uppercase rounded-2xl flex items-center justify-center gap-3 active:scale-95 transition-all">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          Delete Account
+        </button>
         <button onClick={() => signOut(auth)} className="w-full px-4 py-5 bg-ha-bg border border-slate-800 text-red-500/60 text-[10px] font-black uppercase rounded-2xl">{t.terminate}</button>
         <div className="flex items-center gap-4">
           <button onClick={() => onNavigate('privacy')} className="text-[8px] font-black text-slate-700 hover:text-slate-400 uppercase tracking-[0.3em] transition-colors">Privacy Policy</button>
