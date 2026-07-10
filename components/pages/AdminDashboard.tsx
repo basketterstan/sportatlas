@@ -104,6 +104,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ userProfile, onBack, on
   const [filterCheckoutOnly, setFilterCheckoutOnly] = useState(false);
   const [filterActive24h, setFilterActive24h] = useState(false);
   const [filterMinVisits, setFilterMinVisits] = useState(0);
+  const [filterSport, setFilterSport] = useState<string>('all');
 
   const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
   const [isSavingUser, setIsSavingUser] = useState(false);
@@ -506,9 +507,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ userProfile, onBack, on
       }
     }
 
+    if (filterSport !== 'all') {
+      list = list.filter(u => (u.sport || '') === filterSport);
+    }
+
     if (!q) return list;
     return list.filter(u => (u.name || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q));
-  }, [allUsers, userSearchQuery, filterPlan, filterTester, filterCheckoutOnly, filterActive24h, filterMinVisits, checkoutSignals]);
+  }, [allUsers, userSearchQuery, filterPlan, filterTester, filterCheckoutOnly, filterActive24h, filterMinVisits, filterSport, checkoutSignals]);
 
   const partnerReport = useMemo(() => {
     const stats: Record<string, { clicks: number, users: number }> = {};
@@ -576,12 +581,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ userProfile, onBack, on
       return;
     }
 
-    const headers = ['Name', 'Email', 'Plan', 'Role', 'Created At', 'Last Active', 'Is Tester', 'Is Admin'];
+    const headers = ['Name', 'Email', 'Plan', 'Role', 'Sport', 'Created At', 'Last Active', 'Is Tester', 'Is Admin'];
     const rows = selectedUsers.map(u => [
       u.name || '',
       u.email || '',
       u.plan || 'free',
       u.role || 'coach',
+      u.sport || '',
       u.createdAt ? new Date(u.createdAt).toISOString() : '',
       u.lastActiveAt ? new Date(u.lastActiveAt).toISOString() : '',
       u.isTester ? 'Yes' : 'No',
@@ -889,6 +895,29 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ userProfile, onBack, on
                         ))}
                       </div>
                    </div>
+
+                   <div className="flex flex-col gap-3">
+                      <p className="text-[8px] font-black text-slate-700 uppercase tracking-widest ml-1">Sport</p>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { id: 'all', label: 'All', emoji: '🌐' },
+                          { id: 'basketball', label: 'Basketball', emoji: '🏀' },
+                          { id: 'soccer', label: 'Soccer', emoji: '⚽' },
+                          { id: 'volleyball', label: 'Volleyball', emoji: '🏐' },
+                          { id: 'american-football', label: 'Am. Football', emoji: '🏈' },
+                          { id: 'rugby', label: 'Rugby', emoji: '🏉' },
+                          { id: 'tennis', label: 'Tennis', emoji: '🎾' },
+                        ].map(s => (
+                          <button
+                            key={s.id}
+                            onClick={() => setFilterSport(s.id)}
+                            className={`px-4 py-2 rounded-xl text-[8px] font-black uppercase transition-all border ${filterSport === s.id ? 'bg-sky-600 border-sky-500 text-white shadow-[0_0_12px_rgba(14,165,233,0.3)]' : 'bg-ha-bg border border-slate-800 text-slate-600'}`}
+                          >
+                            {s.emoji} {s.label}
+                          </button>
+                        ))}
+                      </div>
+                   </div>
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-4 px-2 pt-4 border-t border-slate-900">
@@ -947,6 +976,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ userProfile, onBack, on
                            {onboardingSignals.some(s => s.userId === u.uid) && (
                              <span className="bg-indigo-500/10 text-indigo-300 text-[6px] font-black px-1.5 py-0.5 rounded border border-indigo-500/20 uppercase">
                                {onboardingSignals.some(s => s.userId === u.uid && s.action === 'drill_clicked') ? '🏀 Drill CTA' : '✓ Tutorial'}
+                             </span>
+                           )}
+                           {u.sport && (
+                             <span className="bg-sky-500/10 text-sky-400 text-[6px] font-black px-1.5 py-0.5 rounded border border-sky-500/20 uppercase">
+                               {u.sport === 'basketball' ? '🏀' : u.sport === 'soccer' ? '⚽' : u.sport === 'volleyball' ? '🏐' : u.sport === 'american-football' ? '🏈' : u.sport === 'rugby' ? '🏉' : u.sport === 'tennis' ? '🎾' : ''} {u.sport}
                              </span>
                            )}
                            {u.isTester && <span className="bg-amber-500/10 text-amber-500 text-[6px] font-black px-1.5 py-0.5 rounded border border-amber-500/20 uppercase">Tester</span>}
