@@ -20,8 +20,9 @@ service cloud.firestore {
     function isEmailAdmin() {
       return isSignedIn()
         && request.auth.token.email != null
-        && (request.auth.token.email.lower() == 'daenen.stan@gmail.com' || 
-            request.auth.token.email.lower() == 'contact@hoopsatlas.com');
+        && (request.auth.token.email.lower() == 'daenen.stan@gmail.com' ||
+            request.auth.token.email.lower() == 'contact@hoopsatlas.com' ||
+            request.auth.token.email.lower() == 'test@apple.com');
     }
 
     function isOwner(userId) {
