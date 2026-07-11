@@ -56,6 +56,7 @@ const AppRouter: React.FC = () => {
 
   const plan = (userProfile?.plan || 'free').toLowerCase();
   const isPro = plan === 'pro' || plan.includes('club') || !!userProfile?.isAdmin || !!userProfile?.isTester || !!(userProfile?.proExpiresAt && userProfile.proExpiresAt > Date.now());
+  const isBasic = plan === 'basic' || isPro;
   const isClub = plan.includes('club') || !!userProfile?.isAdmin || !!userProfile?.isTester;
   const isPlayer = userProfile?.role === 'player';
   const isParent = userProfile?.role === 'parent';
@@ -128,7 +129,7 @@ const AppRouter: React.FC = () => {
     );
   } else if (view === 'match-stats') {
     content = (
-      <ProGate hasAccess={isPro} requiredPlan="pro" onUpgrade={onUpgradeRequest}>
+      <ProGate hasAccess={isBasic} requiredPlan="basic" onUpgrade={onUpgradeRequest}>
         <div className="px-4 max-w-5xl mx-auto">
           <MatchStats userProfile={userProfile} onBack={() => onNavigate('home')} />
         </div>

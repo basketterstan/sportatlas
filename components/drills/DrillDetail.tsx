@@ -99,7 +99,7 @@ const DrillDetail: React.FC<DrillDetailProps> = ({
     }
   };
 
-  const isPaid = !!(userProfile?.isSubscribed || userProfile?.subscriptionActive || userProfile?.isTester || userProfile?.isAdmin || (userProfile?.proExpiresAt && userProfile.proExpiresAt > Date.now()));
+  const isPaid = !!(userProfile?.isSubscribed || userProfile?.subscriptionActive || userProfile?.isTester || userProfile?.isAdmin || (userProfile?.proExpiresAt && userProfile.proExpiresAt > Date.now()) || (userProfile?.plan && userProfile.plan !== 'free'));
 
   const handleExportPDF = async () => {
     if (!isPaid) {

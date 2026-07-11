@@ -39,6 +39,7 @@ const SideNav: React.FC<SideNavProps> = ({ currentView, onNavigate, userProfile,
         { id: 'teams', label: t.squad, activeViews: ['teams', 'team-calendar', 'join-team', 'chats'], icon: <TeamIcon /> },
         { id: 'match-archive', label: t.games, activeViews: ['match-archive', 'match-analysis'], icon: <GamesIcon /> },
         { id: 'match-stats', label: t.stats, activeViews: ['match-stats'], icon: <StatsIcon /> },
+        { id: 'tournament-builder', label: t.tournamentBuilder, activeViews: ['tournament-builder'], icon: <TourneyIcon /> },
         { id: 'community', label: t.coachHub, activeViews: ['community', 'community-post'], icon: <CommunityIcon /> },
         { id: 'scrimmage-hub', label: t.scrimmageHub, activeViews: ['scrimmage-hub'], icon: <ScrimmageIcon /> },
       ];
@@ -182,6 +183,13 @@ const ScrimmageIcon = () => (
     <path d="M4.93 4.93c1.56 2.17 2.5 4.83 2.5 7.07s-.94 4.9-2.5 7.07"/>
     <path d="M19.07 4.93c-1.56 2.17-2.5 4.83-2.5 7.07s.94 4.9 2.5 7.07"/>
     <line x1="2" y1="12" x2="22" y2="12"/>
+  </svg>
+);
+
+const TourneyIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M8 21h8M12 17v4M17 3H7l-1 7h10L17 3z"/>
+    <path d="M6 10c-1 2-1 4 0 5s3 2 6 2 5-1 6-2 1-3 0-5"/>
   </svg>
 );
 

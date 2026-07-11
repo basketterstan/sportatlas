@@ -4,7 +4,7 @@ import { SubscriptionPlan } from '../../types';
 interface ProGateProps {
   children: React.ReactNode;
   hasAccess: boolean;
-  requiredPlan?: 'pro' | 'club';
+  requiredPlan?: 'basic' | 'pro' | 'club';
   onUpgrade: (plan: SubscriptionPlan, cycle: 'month' | 'year') => void;
 }
 
@@ -12,13 +12,14 @@ const ProGate: React.FC<ProGateProps> = ({ children, hasAccess, requiredPlan = '
   if (hasAccess) return <>{children}</>;
 
   const isClub = requiredPlan === 'club';
-  const plan: SubscriptionPlan = isClub ? 'club10' : 'pro';
-  const label = isClub ? 'Club' : 'Pro';
-  const price = isClub ? '€99.00/mo' : '€14.99/mo';
-  const yearlyPrice = isClub ? '€999.00/year' : '€149.00/year';
-  const color = isClub ? 'text-amber-400' : 'text-indigo-400';
-  const bgColor = isClub ? 'bg-amber-500' : 'bg-indigo-500';
-  const borderColor = isClub ? 'border-amber-500/30' : 'border-indigo-500/30';
+  const isBasicGate = requiredPlan === 'basic';
+  const plan: SubscriptionPlan = isClub ? 'club10' : isBasicGate ? 'basic' : 'pro';
+  const label = isClub ? 'Club' : isBasicGate ? 'Basic' : 'Pro';
+  const price = isClub ? '€99.00/mo' : isBasicGate ? '€9.99/mo' : '€14.99/mo';
+  const yearlyPrice = isClub ? '€999.00/year' : isBasicGate ? '€99.99/year' : '€149.00/year';
+  const color = isClub ? 'text-amber-400' : isBasicGate ? 'text-emerald-400' : 'text-indigo-400';
+  const bgColor = isClub ? 'bg-amber-500' : isBasicGate ? 'bg-emerald-600' : 'bg-indigo-500';
+  const borderColor = isClub ? 'border-amber-500/30' : isBasicGate ? 'border-emerald-500/30' : 'border-indigo-500/30';
 
   return (
     <div className="relative min-h-[60vh]">
