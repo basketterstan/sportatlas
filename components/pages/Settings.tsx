@@ -480,7 +480,7 @@ const Settings: React.FC<SettingsProps> = ({ userProfile, onOpenAdmin, onNavigat
             <p className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Primary Sport</p>
             <div className="grid grid-cols-3 gap-2">
               {SPORTS.map(sport => {
-                const isActive = (userProfile?.sport ?? Sport.BASKETBALL) === sport.id;
+                const isActive = userProfile?.sport === sport.id;
                 return (
                   <button
                     key={sport.id}
@@ -601,7 +601,7 @@ const Settings: React.FC<SettingsProps> = ({ userProfile, onOpenAdmin, onNavigat
           <span className="text-slate-800 text-[8px]">·</span>
           <button onClick={() => onNavigate('subscription-terms')} className="text-[8px] font-black text-slate-700 hover:text-slate-400 uppercase tracking-[0.3em] transition-colors">Terms</button>
         </div>
-        <p className="text-[7px] font-black text-slate-900 uppercase tracking-[0.6em]">SportAtlas v1.0.0</p>
+        <img src="/sportatlas-logo.png" alt="SportAtlas" className="w-32 opacity-20" />
       </div>
     </div>
   );

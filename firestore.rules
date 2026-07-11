@@ -66,6 +66,7 @@ service cloud.firestore {
           'photoFileName',
           'role',
           'language',
+          'sport',
           'updatedAt',
           'lastActiveAt',
           'notificationsEnabled',
