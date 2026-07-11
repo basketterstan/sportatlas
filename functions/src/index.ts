@@ -315,8 +315,51 @@ app.get("/api/vbl/competition/:compId/matches", async (req: Request, res: Respon
   }
 });
 
+// Klaviyo — subscribe email to list
+app.post("/api/klaviyo/subscribe", async (req: Request, res: Response) => {
+  const { email, name, plan, sport } = req.body;
+  if (!email || typeof email !== "string" || !email.includes("@")) {
+    return res.status(400).json({ error: "Invalid email" });
+  }
+  const klaviyoKey = process.env.KLAVIYO_API_KEY;
+  if (!klaviyoKey) {
+    return res.status(500).json({ error: "Klaviyo not configured" });
+  }
+  try {
+    await axios.post(
+      "https://a.klaviyo.com/api/profiles/",
+      {
+        data: {
+          type: "profile",
+          attributes: {
+            email,
+            first_name: name || "",
+            properties: {
+              plan: plan || "free",
+              sport: sport || "",
+            },
+          },
+        },
+      },
+      {
+        headers: {
+          Authorization: `Klaviyo-API-Key ${klaviyoKey}`,
+          "Content-Type": "application/json",
+          revision: "2024-02-15",
+        },
+      }
+    );
+    res.json({ success: true });
+  } catch (err: any) {
+    const status = err?.response?.status;
+    if (status === 409) return res.json({ success: true }); // profile already exists
+    console.error("[Klaviyo] subscribe error:", err?.response?.data || err?.message);
+    res.status(500).json({ error: "Klaviyo request failed" });
+  }
+});
+
 export const api = functions
-  .runWith({ secrets: ["OPENAI_API_KEY", "STRIPE_SECRET_KEY"] })
+  .runWith({ secrets: ["OPENAI_API_KEY", "STRIPE_SECRET_KEY", "KLAVIYO_API_KEY"] })
   .https.onRequest(app);
 
 export const syncStripeSubscriptionToUser = functions.firestore
