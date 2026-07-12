@@ -51,12 +51,7 @@ const SideNav: React.FC<SideNavProps> = ({ currentView, onNavigate, userProfile,
     <aside className="hidden lg:flex fixed left-0 top-0 h-screen w-56 bg-ha-surface border-r border-ha-line flex-col z-50">
       {/* Logo */}
       <div className="h-[52px] flex items-center px-4 border-b border-ha-line flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-ha-brand rounded-lg flex items-center justify-center flex-shrink-0">
-            <span className="text-white font-bold text-xs tracking-tight">HA</span>
-          </div>
-          <span className="font-semibold text-ha-textHi" style={{ fontSize: 15, letterSpacing: -0.2 }}>Sport Atlas</span>
-        </div>
+        <img src="/sportatlas-logo.png" alt="SportAtlas" className="h-8 w-auto object-contain invert" />
       </div>
 
       {/* Nav items */}
