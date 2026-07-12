@@ -61,7 +61,18 @@ const AppRouter: React.FC = () => {
   const isPlayer = userProfile?.role === 'player';
   const isParent = userProfile?.role === 'parent';
 
+  // Profile is still loading: authenticated but no profile data yet
+  const profileReady = !user || userProfile !== null;
+
   let content: React.ReactNode = null;
+
+  if (!profileReady) {
+    return (
+      <Suspense fallback={<ViewLoader />}>
+        <ViewLoader />
+      </Suspense>
+    );
+  }
 
   if (view === 'home') {
     content = <LandingPage onNavigate={onNavigate} isLoggedIn={!!user} userProfile={userProfile} myTeams={myTeams} onUpgradeRequest={onUpgradeRequest} sharedMatchCode={initialMatchCode} globalAnnouncement={!!globalAlert || partnerBannerEnabled} />;

@@ -4,7 +4,7 @@ import { PlayerProfile, UserProfile, MatchStats as MatchStatsType, PlayerMatchSt
 import { getTranslation } from '../../utils/i18n';
 import { db, auth, storage, handleFirestoreError, OperationType } from '../../utils/firebase';
 import { callAI } from '../../utils/ai';
-import { collection, query, where, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, getDocs } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
 
 interface MatchStatsProps {
@@ -48,15 +48,37 @@ const MatchStats: React.FC<MatchStatsProps> = ({ userProfile, onBack }) => {
 
   useEffect(() => {
     if (!auth.currentUser) return;
+    const uid = auth.currentUser.uid;
 
-    // Listen for Players
-    const qPlayers = query(
-      collection(db, 'playerProfiles'),
-      where('userId', '==', auth.currentUser.uid)
-    );
-    const unsubPlayers = onSnapshot(qPlayers, (snapshot) => {
-      const fetched = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as PlayerProfile[];
-      setProfiles(fetched.sort((a, b) => b.createdAt - a.createdAt));
+    // Listen for Players — merge playerProfiles + Squad team members
+    const qPlayers = query(collection(db, 'playerProfiles'), where('userId', '==', uid));
+    const unsubPlayers = onSnapshot(qPlayers, async (snapshot) => {
+      const direct = snapshot.docs.map(d => ({ id: d.id, ...d.data() })) as PlayerProfile[];
+
+      // Also pull players from teams this coach owns
+      try {
+        const teamsSnap = await getDocs(query(collection(db, 'teams'), where('coachId', '==', uid)));
+        const teamPlayerIds = new Set(direct.map(p => p.id));
+        const fromTeams: PlayerProfile[] = [];
+        teamsSnap.forEach(teamDoc => {
+          const members: Array<{ uid: string; name: string; email?: string; role?: string }> = teamDoc.data().members || [];
+          members.forEach(m => {
+            if (m.role === 'player' && !teamPlayerIds.has(m.uid)) {
+              teamPlayerIds.add(m.uid);
+              fromTeams.push({
+                id: m.uid,
+                userId: uid,
+                name: m.name,
+                position: '',
+                createdAt: 0,
+              } as PlayerProfile);
+            }
+          });
+        });
+        setProfiles([...direct, ...fromTeams].sort((a, b) => b.createdAt - a.createdAt));
+      } catch {
+        setProfiles(direct.sort((a, b) => b.createdAt - a.createdAt));
+      }
       setLoadingPlayers(false);
     }, (err) => handleFirestoreError(err, OperationType.GET, 'playerProfiles'));
 
