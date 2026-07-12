@@ -174,9 +174,10 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, plan, pr
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-ha-bg/95 backdrop-blur-2xl z-[200] flex items-center justify-center p-6">
+    <div className="fixed inset-0 bg-ha-bg/95 backdrop-blur-2xl z-[200] overflow-y-auto">
+      <div className="flex min-h-full items-center justify-center p-6">
       <div className="bg-[#0b1224] border border-slate-800 rounded-[3rem] p-10 w-full max-w-md text-center shadow-3xl relative animate-in zoom-in duration-300">
-        <button onClick={onClose} className="absolute top-6 right-6 text-slate-500 hover:text-white transition-colors">
+        <button onClick={onClose} className="absolute top-6 right-6 text-slate-500 hover:text-white transition-colors z-10">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
 
@@ -261,6 +262,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, plan, pr
             </p>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

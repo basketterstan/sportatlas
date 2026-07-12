@@ -50,6 +50,7 @@ const App: React.FC = () => {
   const [shareToImport, setShareToImport] = useState<ShareData | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showLanguagePicker, setShowLanguagePicker] = useState(false);
+  const [showTshirtPromo, setShowTshirtPromo] = useState(false);
 
   // Load Google Analytics and AdSense only on web — not on native iOS (Apple ATT compliance)
   useEffect(() => {
@@ -222,6 +223,15 @@ const App: React.FC = () => {
       subscription.setPaymentFeedback('cancelled');
     }
   }, [authLoading, nav.initialMatchCode, userProfile?.uid]);
+
+  // T-shirt promo: show after 30s, skip during onboarding, once per session
+  useEffect(() => {
+    if (authLoading || showOnboarding) return;
+    const dismissed = sessionStorage.getItem('tshirt_promo_dismissed');
+    if (dismissed) return;
+    const t = setTimeout(() => setShowTshirtPromo(true), 30000);
+    return () => clearTimeout(t);
+  }, [authLoading, showOnboarding]);
 
   const handlePartnerClick = async () => {
     updateDoc(doc(db, "system_config", "partner_clicks"), { basketVisionClicks: increment(1) })
@@ -491,10 +501,13 @@ const App: React.FC = () => {
         onDone={() => setShowOnboarding(false)}
         onCreateDrill={() => nav.handleNavigate('create')}
       />
-      {userProfile?.tshirtEligible && !userProfile?.tshirtAddressSubmitted && (
+      {showTshirtPromo && (
         <TshirtClaimModal
           userProfile={userProfile}
-          onClose={() => {/* user can close, modal re-appears on next load until submitted */}}
+          onClose={() => {
+            sessionStorage.setItem('tshirt_promo_dismissed', '1');
+            setShowTshirtPromo(false);
+          }}
         />
       )}
     </div>
