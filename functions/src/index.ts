@@ -257,7 +257,7 @@ app.get("/api/vbl/search", async (req: Request, res: Response) => {
 
 // Get teams for a club
 app.get("/api/vbl/club/:clubId/teams", async (req: Request, res: Response) => {
-  const { clubId } = req.params;
+  const clubId = req.params.clubId as string;
   if (!isValidVblId(clubId)) return res.status(400).json({ error: "Invalid clubId" });
   const endpoints = [`/Clubs/${clubId}/Teams`, `/Team/GetTeamsByClub?clubGuid=${clubId}`];
   for (const endpoint of endpoints) {
@@ -271,7 +271,7 @@ app.get("/api/vbl/club/:clubId/teams", async (req: Request, res: Response) => {
 
 // Get matches for a team
 app.get("/api/vbl/team/:teamId/matches", async (req: Request, res: Response) => {
-  const { teamId } = req.params;
+  const teamId = req.params.teamId as string;
   if (!isValidVblId(teamId)) return res.status(400).json({ error: "Invalid teamId" });
   try {
     const response = await vblApi.get(`/Teams/${teamId}/Matches`);
@@ -283,7 +283,7 @@ app.get("/api/vbl/team/:teamId/matches", async (req: Request, res: Response) => 
 
 // Get team details
 app.get("/api/vbl/team/:teamId", async (req: Request, res: Response) => {
-  const { teamId } = req.params;
+  const teamId = req.params.teamId as string;
   if (!isValidVblId(teamId)) return res.status(400).json({ error: "Invalid teamId" });
   try {
     const response = await vblApi.get(`/Teams/${teamId}`);
@@ -305,7 +305,7 @@ app.get("/api/vbl/competitions", async (_req: Request, res: Response) => {
 
 // Get matches for competition
 app.get("/api/vbl/competition/:compId/matches", async (req: Request, res: Response) => {
-  const { compId } = req.params;
+  const compId = req.params.compId as string;
   if (!isValidVblId(compId)) return res.status(400).json({ error: "Invalid compId" });
   try {
     const response = await vblApi.get(`/Competitions/${compId}/Matches`);
@@ -361,6 +361,52 @@ app.post("/api/klaviyo/subscribe", async (req: Request, res: Response) => {
 export const api = functions
   .runWith({ secrets: ["OPENAI_API_KEY", "STRIPE_SECRET_KEY", "KLAVIYO_API_KEY"] })
   .https.onRequest(app);
+
+// Automatically sync new users to Klaviyo when their profile is created
+export const syncNewUserToKlaviyo = functions
+  .runWith({ secrets: ["KLAVIYO_API_KEY"] })
+  .firestore.document("users/{uid}")
+  .onCreate(async (snap) => {
+    const data = snap.data();
+    const klaviyoKey = process.env.KLAVIYO_API_KEY;
+    if (!klaviyoKey || !data?.email) return;
+
+    try {
+      await axios.post(
+        "https://a.klaviyo.com/api/profiles/",
+        {
+          data: {
+            type: "profile",
+            attributes: {
+              email: data.email,
+              first_name: data.name || "",
+              properties: {
+                plan: data.plan || "free",
+                sport: data.sport || "",
+                role: data.role || "coach",
+                source: "sportatlas_signup",
+              },
+            },
+          },
+        },
+        {
+          headers: {
+            Authorization: `Klaviyo-API-Key ${klaviyoKey}`,
+            "Content-Type": "application/json",
+            revision: "2024-02-15",
+          },
+        }
+      );
+      console.log(`[Klaviyo] Synced new user: ${data.email}`);
+    } catch (err: any) {
+      const status = err?.response?.status;
+      if (status === 409) {
+        console.log(`[Klaviyo] Profile already exists: ${data.email}`);
+        return;
+      }
+      console.error("[Klaviyo] Sync failed:", err?.response?.data || err?.message);
+    }
+  });
 
 export const syncStripeSubscriptionToUser = functions.firestore
   .document("customers/{uid}/subscriptions/{subscriptionId}")
