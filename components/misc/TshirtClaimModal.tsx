@@ -99,6 +99,18 @@ const TshirtClaimModal: React.FC<TshirtClaimModalProps> = ({ userProfile, onClos
               <p className="text-ha-textMid text-sm mb-4">
                 Als bedanking voor jouw jaarlijks Pro-abonnement sturen we je een exclusief SportAtlas shirt. Vul je bezorgadres in.
               </p>
+
+              <div className="bg-ha-surface2 border border-ha-line rounded-xl p-3 text-[11px] text-ha-textMid leading-relaxed mb-4">
+                <p className="font-semibold text-ha-textHi mb-1">Actievoorwaarden</p>
+                <ul className="list-disc list-inside space-y-0.5">
+                  <li>Enkel geldig voor <strong>jaarlijkse Pro-abonnementen</strong> afgesloten in <strong>juli 2026</strong></li>
+                  <li>Uitsluitend voor gebruikers met een bezorgadres <strong>binnen Europa</strong></li>
+                  <li>Eén shirt per account, niet overdraagbaar</li>
+                  <li>Verzending binnen 4 weken na bevestiging van het adres</li>
+                  <li>Zolang de voorraad strekt</li>
+                  <li>SportAtlas behoudt het recht de actie te beëindigen</li>
+                </ul>
+              </div>
             </div>
 
             <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-3">
