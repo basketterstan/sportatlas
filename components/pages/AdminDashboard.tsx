@@ -42,7 +42,7 @@ interface Stats {
   latestIosIpaUrl?: string;
 }
 
-type AdminTab = 'personnel' | 'partners' | 'partner-apps' | 'games' | 'broadcast' | 'push' | 'requests' | 'film-reqs' | 'leads' | 'studio' | 'metrics' | 'feedback' | 'releases' | 'changelog' | 'finance' | 'mailing';
+type AdminTab = 'personnel' | 'partners' | 'partner-apps' | 'games' | 'broadcast' | 'push' | 'requests' | 'film-reqs' | 'leads' | 'studio' | 'metrics' | 'feedback' | 'releases' | 'changelog' | 'finance' | 'mailing' | 'tshirts';
 
 interface ExpenseItem {
   id: string;
@@ -84,6 +84,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ userProfile, onBack, on
   const [userDrillCounts, setUserDrillCounts] = useState<Record<string, number>>({});
   const [cancellationRequests, setCancellationRequests] = useState<CancellationRequest[]>([]);
   const [filmRequests, setFilmRequests] = useState<FilmRequest[]>([]);
+  const [tshirtClaims, setTshirtClaims] = useState<any[]>([]);
   const [feedbackList, setFeedbackList] = useState<Feedback[]>([]);
   const [partnerSignals, setPartnerSignals] = useState<any[]>([]);
   const [checkoutSignals, setCheckoutSignals] = useState<any[]>([]);
@@ -307,6 +308,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ userProfile, onBack, on
       setPartnerApplications(list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)));
     }, (err) => errorHandler("Partner Applications", err));
 
+    const unsubTshirts = onSnapshot(collection(db, "tshirt_claims"), (snap) => {
+      const list: any[] = [];
+      snap.forEach(d => list.push({ ...d.data(), id: d.id }));
+      setTshirtClaims(list.sort((a, b) => (b.claimedAt || 0) - (a.claimedAt || 0)));
+    }, (err) => errorHandler("T-shirt Claims", err));
+
     const unsubExpenses = onSnapshot(doc(db, "system_config", "expenses"), (snap) => {
       if (snap.exists() && snap.data().items) {
         setExpenses(snap.data().items);
@@ -320,7 +327,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ userProfile, onBack, on
       }
     }, (err) => errorHandler("Lifetime Finance", err));
 
-    return () => { unsubAlert(); unsubUsers(); unsubCancels(); unsubFilm(); unsubFeedback(); unsubPartner(); unsubFeatures(); unsubSignals(); unsubCheckoutSignals(); unsubOnboarding(); unsubDrills(); unsubMatches(); unsubPartnerApps(); unsubExpenses(); unsubFinance(); };
+    return () => { unsubAlert(); unsubUsers(); unsubCancels(); unsubFilm(); unsubFeedback(); unsubPartner(); unsubFeatures(); unsubSignals(); unsubCheckoutSignals(); unsubOnboarding(); unsubDrills(); unsubMatches(); unsubPartnerApps(); unsubExpenses(); unsubFinance(); unsubTshirts(); };
   }, [userProfile]);
 
   const togglePartnerBanner = async () => {
@@ -813,6 +820,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ userProfile, onBack, on
           { id: 'releases', label: 'Releases', icon: '🚀' },
           { id: 'changelog', label: 'Changelog', icon: '📋' },
           { id: 'feedback', label: `Intel (${stats.newFeedback})`, icon: '✉️' },
+          { id: 'tshirts', label: `T-Shirts (${tshirtClaims.length})`, icon: '👕' },
         ].map((tab) => (
           <button key={tab.id} onClick={() => setActiveTab(tab.id as AdminTab)} className={`flex-1 min-w-[110px] py-4 rounded-xl flex items-center justify-center gap-2 transition-all ${activeTab === tab.id ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:text-white'}`}>
             <span className="text-sm">{tab.icon}</span><span className="text-[10px] font-black uppercase tracking-widest">{tab.label}</span>
@@ -2039,6 +2047,62 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ userProfile, onBack, on
                   </div>
                </div>
              )) : <div className="py-20 text-center text-slate-700 font-black uppercase tracking-widest text-[10px]">Intel channel clear.</div>}
+          </div>
+        )}
+
+        {activeTab === 'tshirts' && (
+          <div className="space-y-4 animate-in slide-in-from-bottom-4">
+            <div className="bg-[#0b1224] border border-slate-800 p-5 rounded-3xl">
+              <p className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-1">Actie: Juli 2026 — Jaarlijks Pro</p>
+              <p className="text-2xl font-black italic text-white">{tshirtClaims.length} <span className="text-sm font-medium text-slate-400">claims</span></p>
+            </div>
+            {tshirtClaims.length === 0 ? (
+              <div className="py-20 text-center text-slate-700 font-black uppercase tracking-widest text-[10px]">Nog geen claims.</div>
+            ) : (
+              <>
+                <button
+                  onClick={() => {
+                    const headers = ['Naam', 'Email', 'Maat', 'Straat', 'Postcode', 'Stad', 'Land', 'Datum'];
+                    const rows = tshirtClaims.map(c => [
+                      c.name, c.email, c.size, c.street, c.zip, c.city, c.country,
+                      new Date(c.claimedAt).toLocaleString('nl-BE'),
+                    ]);
+                    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+                    a.download = 'tshirt_claims.csv';
+                    a.click();
+                  }}
+                  className="px-4 py-2 bg-slate-800 text-slate-300 text-[9px] font-black uppercase rounded-xl hover:bg-slate-700 transition-all"
+                >
+                  Export CSV
+                </button>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-[10px] text-slate-300 border-collapse">
+                    <thead>
+                      <tr className="text-left text-[8px] text-slate-600 uppercase tracking-widest border-b border-slate-800">
+                        {['Naam', 'Email', 'Maat', 'Adres', 'Stad', 'Land', 'Datum'].map(h => (
+                          <th key={h} className="py-2 pr-4 font-black">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {tshirtClaims.map(c => (
+                        <tr key={c.id} className="border-b border-slate-900 hover:bg-slate-900/40">
+                          <td className="py-2 pr-4 font-medium">{c.name}</td>
+                          <td className="py-2 pr-4 text-slate-500">{c.email}</td>
+                          <td className="py-2 pr-4 font-bold text-ha-brand">{c.size}</td>
+                          <td className="py-2 pr-4">{c.street}</td>
+                          <td className="py-2 pr-4">{c.city} {c.zip}</td>
+                          <td className="py-2 pr-4">{c.country}</td>
+                          <td className="py-2 pr-4 text-slate-600">{new Date(c.claimedAt).toLocaleDateString('nl-BE')}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
           </div>
         )}
 

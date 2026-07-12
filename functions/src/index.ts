@@ -408,6 +408,23 @@ export const syncNewUserToKlaviyo = functions
     }
   });
 
+const PRO_YEAR_PRICE_ID = process.env.VITE_STRIPE_PRICE_PRO_YEAR || "price_1SlBQMP2I9jygKKDAPzu4krq";
+
+const isProYearlyPrice = (data: Record<string, unknown>): boolean => {
+  const candidates = [
+    data.price,
+    (data as Record<string, unknown> & { price?: { id?: string } }).price,
+    data.priceId,
+    data.price_id,
+    (data.items as { data?: { price?: { id?: string } }[] })?.data?.[0]?.price?.id,
+  ];
+  for (const c of candidates) {
+    const id = typeof c === "string" ? c : c && typeof c === "object" ? String((c as Record<string, unknown>).id || "") : "";
+    if (id === PRO_YEAR_PRICE_ID) return true;
+  }
+  return false;
+};
+
 export const syncStripeSubscriptionToUser = functions.firestore
   .document("customers/{uid}/subscriptions/{subscriptionId}")
   .onWrite(async (_change, context) => {
@@ -419,24 +436,44 @@ export const syncStripeSubscriptionToUser = functions.firestore
       .get();
 
     let plan: SubscriptionPlan = "free";
+    let tshirtEligible = false;
 
     subscriptionsSnap.forEach((subscriptionDoc) => {
       const data = subscriptionDoc.data() as Record<string, unknown>;
       const status = String(data.status || "").toLowerCase();
       if (!ACTIVE_STRIPE_STATUSES.has(status)) return;
-      plan = maxPlan(plan, getPlanFromSubscription(data));
+      const subPlan = getPlanFromSubscription(data);
+      plan = maxPlan(plan, subPlan);
+
+      // T-shirt promo: yearly Pro taken in July 2026
+      if (subPlan === "pro" && isProYearlyPrice(data)) {
+        const createdMs = typeof data.created === "number"
+          ? data.created * 1000
+          : typeof data.current_period_start === "number"
+            ? (data.current_period_start as number) * 1000
+            : 0;
+        if (createdMs > 0) {
+          const d = new Date(createdMs);
+          if (d.getFullYear() === 2026 && d.getMonth() === 6) {
+            tshirtEligible = true;
+          }
+        }
+      }
     });
 
     const subscriptionActive = plan !== "free";
-    await admin.firestore().collection("users").doc(uid).set({
+    const update: Record<string, unknown> = {
       plan,
       stripeRole: plan,
       subscriptionActive,
       isSubscribed: subscriptionActive,
       updatedAt: Date.now(),
-    }, { merge: true });
+    };
+    if (tshirtEligible) update.tshirtEligible = true;
 
-    console.log(`Synced Stripe subscription for ${uid}: ${plan}`);
+    await admin.firestore().collection("users").doc(uid).set(update, { merge: true });
+
+    console.log(`Synced Stripe subscription for ${uid}: ${plan}${tshirtEligible ? " (tshirt eligible)" : ""}`);
   });
 
 export const notifyOnScrimmageMessage = functions.firestore

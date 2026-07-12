@@ -147,6 +147,8 @@ export interface UserProfile {
   externalVaultUrl?: string;
   managedCoachUids?: string[];
   managedByUid?: string;
+  tshirtEligible?: boolean;
+  tshirtAddressSubmitted?: boolean;
 }
 
 export type ViewState = 'home' | 'library' | 'discover' | 'coach-search' | 'create' | 'edit' | 'detail' | 'settings' | 'auth' | 'privacy' | 'teams' | 'team-calendar' | 'match-board' | 'subscription-terms' | 'join-team' | 'admin-dashboard' | 'training-selection' | 'about' | 'playbooks' | 'data-erasure' | 'tiktok-studio' | 'unsubscribe' | 'club-hq' | 'match-analysis' | 'tournament-builder' | 'local-courts' | 'match-archive' | 'match-upload' | 'drill-brief' | 'chats' | 'match-broadcaster' | 'match-viewer' | 'match-stats' | 'support' | 'partners' | 'community' | 'community-post' | 'scrimmage-hub';

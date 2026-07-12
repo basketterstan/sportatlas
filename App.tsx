@@ -31,6 +31,7 @@ import Toaster from './components/layout/Toaster';
 import ImportModal from './components/shared/ImportModal';
 import OnboardingTutorial, { ONBOARDING_STORAGE_KEY } from './components/misc/OnboardingTutorial';
 import LanguagePicker from './components/misc/LanguagePicker';
+import TshirtClaimModal from './components/misc/TshirtClaimModal';
 import { AppLanguage, LANGUAGE_PICKED_KEY, LANGUAGE_STORAGE_KEY } from './utils/i18n';
 
 const App: React.FC = () => {
@@ -490,6 +491,12 @@ const App: React.FC = () => {
         onDone={() => setShowOnboarding(false)}
         onCreateDrill={() => nav.handleNavigate('create')}
       />
+      {userProfile?.tshirtEligible && !userProfile?.tshirtAddressSubmitted && (
+        <TshirtClaimModal
+          userProfile={userProfile}
+          onClose={() => {/* user can close, modal re-appears on next load until submitted */}}
+        />
+      )}
     </div>
     </AppProvider>
     </ErrorBoundary>

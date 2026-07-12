@@ -72,7 +72,8 @@ service cloud.firestore {
           'notificationsEnabled',
           'fcmToken',
           'externalVaultUrl',
-          'multiCloudEnabled'
+          'multiCloudEnabled',
+          'tshirtAddressSubmitted'
         ]) &&
         request.resource.data.diff(resource.data).affectedKeys().hasAny([
           'isAdmin',
@@ -387,6 +388,14 @@ service cloud.firestore {
 
     match /users/{userId}/replyLikes/{replyId} {
       allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // ------------------------------------------------------------------
+    // T-SHIRT CLAIMS — July 2026 promo
+    // ------------------------------------------------------------------
+    match /tshirt_claims/{claimId} {
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+      allow read, list: if isAdmin();
     }
 
     match /customers/{uid} {
