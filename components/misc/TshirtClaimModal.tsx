@@ -77,8 +77,9 @@ const TshirtClaimModal: React.FC<TshirtClaimModalProps> = ({ userProfile, onClos
         ) : isEligible ? (
           /* ── ADDRESS FORM for eligible users ── */
           <>
-            <div className="relative bg-ha-surface2 flex justify-center pt-6 pb-4 px-6">
-              <img src="/tshirt-promo.png" alt="Gratis SportAtlas T-shirt" className="h-40 object-contain" />
+            <div className="relative bg-ha-surface2 flex flex-col items-center pt-5 pb-4 px-6 gap-3">
+              <img src="/sportatlas-logo.png" alt="SportAtlas" className="h-10 object-contain" />
+              <img src="/tshirt-promo.png" alt="Gratis SportAtlas T-shirt" className="h-36 object-contain" />
               <button onClick={onClose} className="absolute top-3 right-3 text-ha-textLow hover:text-ha-textHi transition-colors">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -151,8 +152,9 @@ const TshirtClaimModal: React.FC<TshirtClaimModalProps> = ({ userProfile, onClos
         ) : (
           /* ── PROMO TEASER for all other visitors ── */
           <>
-            <div className="relative bg-ha-surface2 flex justify-center pt-6 pb-4 px-6">
-              <img src="/tshirt-promo.png" alt="Free SportAtlas T-shirt" className="h-40 object-contain" />
+            <div className="relative bg-ha-surface2 flex flex-col items-center pt-5 pb-4 px-6 gap-3">
+              <img src="/sportatlas-logo.png" alt="SportAtlas" className="h-10 object-contain" />
+              <img src="/tshirt-promo.png" alt="Free SportAtlas T-shirt" className="h-36 object-contain" />
               <button onClick={onClose} className="absolute top-3 right-3 text-ha-textLow hover:text-ha-textHi transition-colors">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
