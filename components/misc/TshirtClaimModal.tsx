@@ -171,6 +171,10 @@ const TshirtClaimModal: React.FC<TshirtClaimModalProps> = ({ userProfile, onClos
                 <p>✓ Yearly Pro: <strong className="text-ha-textHi">€149 / year</strong></p>
                 <p>✓ While stocks last · Offer valid until July 31, 2026</p>
               </div>
+              <div className="flex items-start gap-2 bg-ha-surface2 border border-ha-line rounded-xl px-3 py-2.5 text-[11px] text-ha-textMid mb-1">
+                <span className="text-base leading-none mt-0.5">📧</span>
+                <span>After your purchase you'll receive an email with instructions to claim your free t-shirt.</span>
+              </div>
               <button
                 onClick={() => { onUpgrade?.(); onClose(); }}
                 className="w-full py-2.5 bg-ha-brand text-white rounded-ha-md font-semibold text-sm hover:opacity-90 transition-opacity"

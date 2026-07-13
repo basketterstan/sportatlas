@@ -225,6 +225,14 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, plan, pr
             </div>
           ) : status === 'idle' ? (
             <div className="space-y-6">
+              {plan.toLowerCase() === 'pro' && period === 'year' && (
+                <div className="flex items-start gap-2 bg-amber-500/10 border border-amber-500/20 rounded-2xl px-4 py-3 text-left">
+                  <span className="text-lg leading-none mt-0.5">🎁</span>
+                  <p className="text-[11px] text-amber-400 leading-relaxed">
+                    <strong>July offer:</strong> After your payment you'll receive an email with instructions to claim your free SportAtlas t-shirt.
+                  </p>
+                </div>
+              )}
               <button onClick={handleCheckout} className="w-full py-6 bg-emerald-600 text-white font-black uppercase tracking-[0.2em] rounded-2xl shadow-2xl hover:bg-emerald-500 transition-all text-xs border-b-4 border-emerald-800">
                 Launch Secure Checkout
               </button>
