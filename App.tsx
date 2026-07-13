@@ -504,6 +504,7 @@ const App: React.FC = () => {
       {showTshirtPromo && (
         <TshirtClaimModal
           userProfile={userProfile}
+          onUpgrade={() => { subscription.setCheckoutPlan('pro'); subscription.setCheckoutCycle('year'); }}
           onClose={() => {
             sessionStorage.setItem('tshirt_promo_dismissed', '1');
             setShowTshirtPromo(false);

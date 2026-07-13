@@ -6,11 +6,12 @@ import { UserProfile } from '../../types';
 interface TshirtClaimModalProps {
   userProfile: UserProfile | null;
   onClose: () => void;
+  onUpgrade?: () => void;
 }
 
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
-const TshirtClaimModal: React.FC<TshirtClaimModalProps> = ({ userProfile, onClose }) => {
+const TshirtClaimModal: React.FC<TshirtClaimModalProps> = ({ userProfile, onClose, onUpgrade }) => {
   const isEligible = !!(userProfile?.tshirtEligible && !userProfile?.tshirtAddressSubmitted);
 
   const [form, setForm] = useState({
@@ -151,7 +152,7 @@ const TshirtClaimModal: React.FC<TshirtClaimModalProps> = ({ userProfile, onClos
           /* ── PROMO TEASER for all other visitors ── */
           <>
             <div className="relative bg-ha-surface2 flex justify-center pt-6 pb-4 px-6">
-              <img src="/tshirt-promo.png" alt="Gratis SportAtlas T-shirt" className="h-40 object-contain" />
+              <img src="/tshirt-promo.png" alt="Free SportAtlas T-shirt" className="h-40 object-contain" />
               <button onClick={onClose} className="absolute top-3 right-3 text-ha-textLow hover:text-ha-textHi transition-colors">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -160,24 +161,24 @@ const TshirtClaimModal: React.FC<TshirtClaimModalProps> = ({ userProfile, onClos
             </div>
             <div className="p-6">
               <div className="inline-flex items-center gap-1.5 bg-amber-500/10 text-amber-500 text-xs font-semibold px-2.5 py-1 rounded-full mb-3">
-                🎁 Tijdelijke actie — Juli 2026
+                🎁 Limited offer — July 2026
               </div>
-              <h2 className="text-lg font-bold text-ha-textHi mb-2">Gratis T-shirt bij jaarlijks Pro!</h2>
+              <h2 className="text-lg font-bold text-ha-textHi mb-2">Free T-shirt with yearly Pro!</h2>
               <p className="text-ha-textMid text-sm mb-4">
-                Neem deze maand een <strong className="text-ha-textHi">jaarlijks Pro-abonnement</strong> en ontvang een exclusief SportAtlas shirt — gratis, rechtstreeks aan huis bezorgd (enkel binnen Europa).
+                Subscribe to a <strong className="text-ha-textHi">yearly Pro plan</strong> this month and receive an exclusive SportAtlas shirt — free, shipped directly to your door (Europe only).
               </p>
               <div className="text-[11px] text-ha-textMid mb-5 space-y-0.5">
-                <p>✓ Jaarlijks Pro: <strong className="text-ha-textHi">€99,99 / jaar</strong> — bespaar 44%</p>
-                <p>✓ Zolang voorraad strekt · Actie loopt t/m 31 juli 2026</p>
+                <p>✓ Yearly Pro: <strong className="text-ha-textHi">€149 / year</strong></p>
+                <p>✓ While stocks last · Offer valid until July 31, 2026</p>
               </div>
               <button
-                onClick={onClose}
+                onClick={() => { onUpgrade?.(); onClose(); }}
                 className="w-full py-2.5 bg-ha-brand text-white rounded-ha-md font-semibold text-sm hover:opacity-90 transition-opacity"
               >
-                Bekijk Pro-abonnement
+                Get Pro — €149 / year
               </button>
               <button onClick={onClose} className="w-full mt-2 py-2 text-ha-textLow text-xs hover:text-ha-textMid transition-colors">
-                Nee bedankt
+                No thanks
               </button>
             </div>
           </>
