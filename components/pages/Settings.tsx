@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { signOut, updateProfile } from 'firebase/auth';
-import { doc, updateDoc, setDoc, collection, getDocs, query, getDoc, orderBy, limit, where, addDoc, onSnapshot } from 'firebase/firestore';
+import { signOut, updateProfile, deleteUser } from 'firebase/auth';
+import { doc, updateDoc, setDoc, collection, getDocs, query, getDoc, orderBy, limit, where, addDoc, onSnapshot, deleteDoc } from 'firebase/firestore';
 import { auth, db, generateReferralCode, requestNotificationPermission } from '../../utils/firebase';
 import { showCustomerCenter } from '../../utils/revenuecat';
 import { Capacitor } from '@capacitor/core';
@@ -257,6 +257,22 @@ const Settings: React.FC<SettingsProps> = ({ userProfile, onOpenAdmin, onNavigat
       });
     } catch (err) {
       clearTimeout(portalTimeout); setIsOpeningPortal(false); window.location.assign(fallbackUrl);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!auth.currentUser) return;
+    if (!window.confirm('Are you sure you want to permanently delete your account? All your data will be lost. This cannot be undone.')) return;
+    const uid = auth.currentUser.uid;
+    try {
+      await deleteDoc(doc(db, 'users', uid));
+      await deleteUser(auth.currentUser);
+    } catch (e: any) {
+      if (e?.code === 'auth/requires-recent-login') {
+        alert('For security reasons, please sign out and sign back in before deleting your account.');
+      } else {
+        alert('Failed to delete account. Please try again or contact support.');
+      }
     }
   };
 
@@ -596,10 +612,18 @@ const Settings: React.FC<SettingsProps> = ({ userProfile, onOpenAdmin, onNavigat
           Delete Account
         </button>
         <button onClick={() => signOut(auth)} className="w-full px-4 py-5 bg-ha-bg border border-slate-800 text-red-500/60 text-[10px] font-black uppercase rounded-2xl">{t.terminate}</button>
+        <button
+          onClick={handleDeleteAccount}
+          className="w-full px-4 py-5 bg-red-950/30 border border-red-900/50 text-red-500 text-[10px] font-black uppercase rounded-2xl hover:bg-red-950/50 transition-colors"
+        >
+          Permanently Delete Account
+        </button>
         <div className="flex items-center gap-4">
           <button onClick={() => onNavigate('privacy')} className="text-[8px] font-black text-slate-700 hover:text-slate-400 uppercase tracking-[0.3em] transition-colors">Privacy Policy</button>
           <span className="text-slate-800 text-[8px]">·</span>
           <button onClick={() => onNavigate('subscription-terms')} className="text-[8px] font-black text-slate-700 hover:text-slate-400 uppercase tracking-[0.3em] transition-colors">Terms</button>
+          <span className="text-slate-800 text-[8px]">·</span>
+          <button onClick={() => onNavigate('data-erasure')} className="text-[8px] font-black text-slate-700 hover:text-slate-400 uppercase tracking-[0.3em] transition-colors">Data Erasure</button>
         </div>
         <img src="/sportatlas-logo.png" alt="SportAtlas" className="w-32 opacity-20" />
       </div>

@@ -7,6 +7,7 @@ import { UploadedMatch, UserProfile, ViewState, LiveMatch } from '../../types';
 import AdBanner from '../shared/AdBanner';
 import DonateModal from '../misc/DonateModal';
 import { getTranslation } from '../../utils/i18n';
+import { Capacitor } from '@capacitor/core';
 
 interface MatchArchiveProps {
   userProfile?: UserProfile | null;
@@ -32,6 +33,7 @@ const MatchArchive: React.FC<MatchArchiveProps> = ({ userProfile, onBack, onNavi
   const videoRef = useRef<HTMLVideoElement>(null);
   const isAdmin = userProfile?.isAdmin === true;
   const isLoggedIn = !!auth.currentUser;
+  const isNative = Capacitor.isNativePlatform();
 
   useEffect(() => {
     if (initialMatchCode) {
@@ -179,6 +181,7 @@ const MatchArchive: React.FC<MatchArchiveProps> = ({ userProfile, onBack, onNavi
 
   const handleMatchClick = (match: UploadedMatch) => {
     if (!isLoggedIn) { onNavigate('auth', undefined, 'login'); return; }
+    if (isNative) { openMatch(match); return; }
     setPendingMatch(match);
   };
 
@@ -267,6 +270,7 @@ const MatchArchive: React.FC<MatchArchiveProps> = ({ userProfile, onBack, onNavi
            </div>
            
            {/* FREE WATCH BANNER */}
+           {!isNative && (
            <div className="mx-6 mt-6 bg-gradient-to-r from-ha-brand/10 to-blue-900/20 border border-ha-brand/20 rounded-[2rem] p-6 flex flex-col md:flex-row md:items-center justify-between gap-5">
              <div className="space-y-2">
                <p className="text-[11px] font-black text-ha-brand uppercase tracking-widest">You can watch this game for free.</p>
@@ -285,6 +289,7 @@ const MatchArchive: React.FC<MatchArchiveProps> = ({ userProfile, onBack, onNavi
                Donate
              </button>
            </div>
+           )}
 
            <div className="p-8 space-y-8">
               <div className="flex justify-between items-start">
@@ -348,6 +353,7 @@ const MatchArchive: React.FC<MatchArchiveProps> = ({ userProfile, onBack, onNavi
       </div>
 
       {/* DONATE BANNER */}
+      {!isNative && (
       <button
         onClick={() => setShowDonate(true)}
         className="w-full flex items-center justify-between gap-4 bg-ha-brand/5 border border-ha-brand/20 rounded-[2rem] px-8 py-5 hover:bg-ha-brand/10 hover:border-ha-brand/40 transition-all active:scale-[0.99] group"
@@ -363,6 +369,7 @@ const MatchArchive: React.FC<MatchArchiveProps> = ({ userProfile, onBack, onNavi
         </div>
         <span className="text-[10px] font-black text-ha-brand uppercase tracking-widest shrink-0 group-hover:translate-x-1 transition-transform">{t.donate}</span>
       </button>
+      )}
 
       {/* LIVE NOW SECTION */}
       {hasAnyLive && (
@@ -548,11 +555,13 @@ const MatchArchive: React.FC<MatchArchiveProps> = ({ userProfile, onBack, onNavi
         )}
       </div>
     </div>
+      {!isNative && (
       <DonateModal
         isOpen={showDonate}
         onClose={() => { setShowDonate(false); setPendingMatch(null); }}
         matchCode={selectedMatch?.accessCode || selectedMatch?.id || pendingMatch?.accessCode || pendingMatch?.id}
       />
+      )}
 
       {/* FREE WATCH POP-UP */}
       {pendingMatch && (

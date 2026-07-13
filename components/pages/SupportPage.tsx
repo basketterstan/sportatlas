@@ -4,6 +4,7 @@ import { collection, addDoc } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { db, auth, storage } from '../../utils/firebase';
 import DonateModal from '../misc/DonateModal';
+import { Capacitor } from '@capacitor/core';
 
 interface SupportPageProps {
   onBack: () => void;
@@ -19,6 +20,7 @@ const SupportPage: React.FC<SupportPageProps> = ({ onBack }) => {
   const [attachment, setAttachment] = useState<{url: string, name: string} | null>(null);
   const [showDonate, setShowDonate] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isNative = Capacitor.isNativePlatform();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -223,7 +225,7 @@ const SupportPage: React.FC<SupportPageProps> = ({ onBack }) => {
       </div>
 
       {/* DONATE SECTION */}
-      <section className="bg-gradient-to-br from-ha-brand/10 to-blue-900/20 border border-ha-brand/20 rounded-[3rem] p-10 md:p-14 text-center space-y-8 shadow-2xl">
+      {!isNative && <section className="bg-gradient-to-br from-ha-brand/10 to-blue-900/20 border border-ha-brand/20 rounded-[3rem] p-10 md:p-14 text-center space-y-8 shadow-2xl">
         <div className="space-y-4">
           <div className="w-16 h-16 bg-ha-brand/10 rounded-[1.75rem] flex items-center justify-center mx-auto border border-ha-brand/20">
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" strokeWidth="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
@@ -244,13 +246,13 @@ const SupportPage: React.FC<SupportPageProps> = ({ onBack }) => {
           Steun SportAtlas
         </button>
         <p className="text-[9px] text-slate-600 font-black uppercase tracking-widest">Veilig via Stripe • Eenmalig • Geen account nodig</p>
-      </section>
+      </section>}
 
       <div className="flex flex-col items-center gap-4 opacity-20">
         <p className="text-center text-[8px] font-black text-slate-600 uppercase tracking-[0.5em]">HOOPSATLAS SUPPORT PROTOCOL • EST. 2026</p>
       </div>
 
-      <DonateModal isOpen={showDonate} onClose={() => setShowDonate(false)} />
+      {!isNative && <DonateModal isOpen={showDonate} onClose={() => setShowDonate(false)} />}
     </div>
   );
 };
