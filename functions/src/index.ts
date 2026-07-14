@@ -11,6 +11,9 @@ const ALLOWED_ORIGINS = [
   "https://hoopsatlas.com",
   "https://app.hoopsatlas.com",
   "https://www.hoopsatlas.com",
+  "https://sportatlas.com",
+  "https://app.sportatlas.com",
+  "https://www.sportatlas.com",
 ];
 
 const app = express();

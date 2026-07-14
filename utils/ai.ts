@@ -12,7 +12,7 @@ interface AIParams {
 export async function callAI(params: AIParams): Promise<string> {
   const envBase = (import.meta as any).env?.VITE_API_BASE_URL || '';
   const base = (!envBase && Capacitor.isNativePlatform())
-    ? 'https://us-central1-hoopsatlas-e16e4.cloudfunctions.net/api'
+    ? 'https://us-central1-hoopsatlas-e16e4.cloudfunctions.net'
     : envBase;
 
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
