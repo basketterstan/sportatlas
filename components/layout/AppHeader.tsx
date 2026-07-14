@@ -65,11 +65,13 @@ const AppHeader: React.FC<Props> = ({ user, partnerBannerEnabled, globalAlert, u
         className={`lg:hidden fixed ${topClass} left-0 w-full z-[60] px-3 flex items-center justify-between bg-ha-bg border-b border-ha-line transition-all duration-500`}
         style={{ height: 52 }}
       >
-        <a href="https://app.sportatlas.com" className="flex items-center gap-2 cursor-pointer">
-          <div className="w-7 h-7 bg-ha-brand rounded-lg flex items-center justify-center flex-shrink-0">
-            <span className="text-white font-bold text-xs tracking-tight">SA</span>
-          </div>
-          <span className="font-semibold text-ha-textHi" style={{ fontSize: 15, letterSpacing: -0.2 }}>Sport Atlas</span>
+        <a href="https://app.sportatlas.com" className="flex items-center cursor-pointer">
+          <img
+            src="/sportatlas-logo.png"
+            alt="SportAtlas"
+            className="h-8 w-auto"
+            style={{ mixBlendMode: 'screen' }}
+          />
         </a>
         <div className="flex items-center gap-1">
           <button
