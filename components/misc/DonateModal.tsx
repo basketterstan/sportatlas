@@ -51,7 +51,7 @@ const DonateModal: React.FC<DonateModalProps> = ({ isOpen, onClose, matchCode })
     setStatus('loading');
     setErrorMsg(null);
     try {
-      const base = (import.meta as any).env?.VITE_API_BASE_URL || '';
+      const base = (import.meta as any).env?.VITE_API_BASE_URL || 'https://hoopsatlas-e16e4.web.app';
       const res = await fetch(`${base}/api/stripe/donate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
