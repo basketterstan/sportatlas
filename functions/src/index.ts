@@ -7,25 +7,8 @@ import OpenAI from "openai";
 
 admin.initializeApp();
 
-const ALLOWED_ORIGINS = [
-  "https://hoopsatlas.com",
-  "https://app.hoopsatlas.com",
-  "https://www.hoopsatlas.com",
-  "https://sportatlas.com",
-  "https://app.sportatlas.com",
-  "https://www.sportatlas.com",
-];
-
 const app = express();
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  }
-}));
+app.use(cors({ origin: true }));
 app.use(express.json({ limit: "64kb" }));
 
 type SubscriptionPlan = "free" | "basic" | "pro" | "club10" | "club20" | "clubUnlimited" | "gameAnalysis";
@@ -204,10 +187,7 @@ app.post("/api/stripe/donate", async (req: Request, res: Response) => {
     return res.status(500).json({ error: "Stripe not configured" });
   }
 
-  // Only allow origin from our own domain
-  const origin = ALLOWED_ORIGINS.includes(req.headers.origin || "")
-    ? req.headers.origin!
-    : "https://hoopsatlas.com";
+  const origin = req.headers.origin || "https://hoopsatlas.com";
 
   const successUrl = matchCode
     ? `${origin}/?matchCode=${encodeURIComponent(String(matchCode).slice(0, 50))}&donation=success`
