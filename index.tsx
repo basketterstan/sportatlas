@@ -2,6 +2,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import ParentPortal from './components/team/ParentPortal';
 import './src/index.css';
 
 
@@ -11,8 +12,14 @@ if (!rootElement) {
 }
 
 const root = ReactDOM.createRoot(rootElement);
+
+const parentPortalMatch = window.location.pathname.match(/^\/parent-portal\/([^/]+)$/);
+
 root.render(
   <React.StrictMode>
-    <App />
+    {parentPortalMatch
+      ? <ParentPortal token={parentPortalMatch[1]} />
+      : <App />
+    }
   </React.StrictMode>
 );

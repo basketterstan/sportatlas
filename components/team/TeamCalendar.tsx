@@ -75,8 +75,12 @@ const TeamCalendar: React.FC<TeamCalendarProps> = ({ user, team: initialTeam, dr
   const [newTime, setNewTime] = useState('');
   const [newType, setNewType] = useState<EventType>('practice');
   const [newLocation, setNewLocation] = useState('');
+  const [newHomeTeam, setNewHomeTeam] = useState('');
+  const [newAwayTeam, setNewAwayTeam] = useState('');
   const [repeatWeekly, setRepeatWeekly] = useState(false);
   const [repeatCount, setRepeatCount] = useState(1);
+  const [parentInviteLink, setParentInviteLink] = useState<string | null>(null);
+  const [generatingInvite, setGeneratingInvite] = useState(false);
   
   const [assignDrillId, setAssignDrillId] = useState('');
   const [assignDueDate, setAssignDueDate] = useState('');
@@ -234,10 +238,10 @@ const TeamCalendar: React.FC<TeamCalendarProps> = ({ user, team: initialTeam, dr
         eventDate.setDate(startDate.getDate() + (i * 7));
         const dateString = eventDate.toISOString().split('T')[0];
         const eventRef = doc(collection(db, "events"));
-        batch.set(eventRef, { teamId: team.id, title: newTitle.toUpperCase(), date: dateString, time: newTime, type: newType, location: newLocation, createdAt: Date.now() });
+        batch.set(eventRef, { teamId: team.id, title: newTitle.toUpperCase(), date: dateString, time: newTime, type: newType, location: newLocation, ...(newType === 'game' && newHomeTeam ? { homeTeam: newHomeTeam.toUpperCase() } : {}), ...(newType === 'game' && newAwayTeam ? { awayTeam: newAwayTeam.toUpperCase() } : {}), createdAt: Date.now() });
       }
       await batch.commit();
-      setNewTitle(''); setShowEventForm(false); setRepeatWeekly(false); setRepeatCount(1);
+      setNewTitle(''); setNewHomeTeam(''); setNewAwayTeam(''); setShowEventForm(false); setRepeatWeekly(false); setRepeatCount(1);
     } catch (e) { alert("Deployment failed."); }
   };
 
@@ -445,6 +449,27 @@ const TeamCalendar: React.FC<TeamCalendarProps> = ({ user, team: initialTeam, dr
 
   if (activeTab === 'analysis' && userProfile) return <MatchAnalysis userProfile={userProfile} team={team} onBack={() => setActiveTab('schedule')} />;
 
+  const handleGenerateParentInvite = async () => {
+    if (!user) return;
+    setGeneratingInvite(true);
+    try {
+      const token = `team_${team.id}`;
+      await setDoc(doc(db, 'parentInvites', token), {
+        token,
+        teamId: team.id,
+        teamName: team.name,
+        coachId: user.uid,
+        createdAt: Date.now(),
+      });
+      const link = `${window.location.origin}/parent-portal/${token}`;
+      setParentInviteLink(link);
+    } catch (err: any) {
+      alert('Kon uitnodigingslink niet genereren: ' + err.message);
+    } finally {
+      setGeneratingInvite(false);
+    }
+  };
+
   const availableTabs = isParent 
     ? [{ id: 'schedule', label: 'Schedule', icon: '📅' }, { id: 'roster', label: 'Roster', icon: '👥' }]
     : [{ id: 'schedule', label: 'Schedule', icon: '📅' }, { id: 'locker-room', label: 'Locker Room', icon: '💬' }, { id: 'highlights', label: 'Highlights', icon: '🎬' }, { id: 'playbook', label: 'Playbook', icon: '📚' }, { id: 'roster', label: 'Roster', icon: '👥' }, { id: 'analysis', label: 'Vision', icon: '👁️' }];
@@ -528,7 +553,7 @@ const TeamCalendar: React.FC<TeamCalendarProps> = ({ user, team: initialTeam, dr
                      };
                    return (
                      <div key={event.id} className="bg-[#0b1224] border border-slate-800 p-6 rounded-[2rem] shadow-xl space-y-4 group hover:border-indigo-500/30 transition-all">
-                        <div className="flex justify-between items-start"><div className="space-y-1"><div className="flex items-center gap-2"><span className={`px-2 py-0.5 rounded text-[7px] font-black uppercase tracking-widest border ${isGame ? 'bg-red-500/10 border-red-500/30 text-red-500' : 'bg-ha-brand/10 border-ha-brand/30 text-ha-brand'}`}>{event.type}</span><span className="text-[10px] font-black text-white italic">{event.time}</span></div><h4 className="text-xl font-black italic uppercase text-white tracking-tight">{event.title}</h4><p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">{event.location || 'Tactical Grounds Unspecified'}</p></div><div className="flex flex-col items-end gap-2"><button onClick={() => exportToIcs(event)} className="p-2 bg-slate-900 border border-slate-800 rounded-xl text-slate-500 hover:text-indigo-400 transition-all"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button></div></div>
+                        <div className="flex justify-between items-start"><div className="space-y-1"><div className="flex items-center gap-2"><span className={`px-2 py-0.5 rounded text-[7px] font-black uppercase tracking-widest border ${isGame ? 'bg-red-500/10 border-red-500/30 text-red-500' : 'bg-ha-brand/10 border-ha-brand/30 text-ha-brand'}`}>{event.type}</span><span className="text-[10px] font-black text-white italic">{event.time}</span></div><h4 className="text-xl font-black italic uppercase text-white tracking-tight">{event.title}</h4>{isGame && event.homeTeam && event.awayTeam && (<div className="flex items-center gap-2 mt-1"><span className="text-[10px] font-black text-white uppercase tracking-tight">{event.homeTeam}</span><span className="text-[8px] font-black text-slate-600 uppercase">vs</span><span className="text-[10px] font-black text-white uppercase tracking-tight">{event.awayTeam}</span></div>)}<p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">{event.location || 'Tactical Grounds Unspecified'}</p></div><div className="flex flex-col items-end gap-2"><button onClick={() => exportToIcs(event)} className="p-2 bg-slate-900 border border-slate-800 rounded-xl text-slate-500 hover:text-indigo-400 transition-all"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button></div></div>
                         <div className="pt-4 border-t border-slate-900 flex items-center justify-between"><div className="flex items-center gap-3">{isCoach ? (<button onClick={() => setShowManifestId(event.id)} className={`flex items-center gap-2 ${attendanceClasses.button} border px-3 py-1.5 rounded-lg active:scale-95 transition-all`}><div className={`w-1.5 h-1.5 rounded-full ${attendanceClasses.dot} animate-pulse`}></div><p className={`text-[10px] font-black ${attendanceClasses.text} uppercase tracking-widest`}>{present} / {total} Personnel Ready</p></button>) : (<p className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Attendance: {present}/{total}</p>)}</div>{!isCoach && !isParent && (<div className="flex gap-2"><button onClick={() => handleToggleAttendance(event.id, 'present')} className={`px-4 py-2 rounded-lg text-[8px] font-black uppercase transition-all ${attendance[event.id] === 'present' ? 'bg-emerald-600 text-white' : 'bg-slate-900 text-slate-600 border border-slate-800'}`}>Present</button><button onClick={() => handleToggleAttendance(event.id, 'absent')} className={`px-4 py-2 rounded-lg text-[8px] font-black uppercase transition-all ${attendance[event.id] === 'absent' ? 'bg-red-600 text-white' : 'bg-slate-900 text-slate-600 border border-slate-800'}`}>Absent</button></div>)}{isCoach && (<button onClick={async () => { if(window.confirm("Purge event?")) await deleteDoc(doc(db, "events", event.id)); }} className="text-[8px] font-black text-red-500 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">Cancel Mission</button>)}</div>
                      </div>
                    );
@@ -642,6 +667,26 @@ const TeamCalendar: React.FC<TeamCalendarProps> = ({ user, team: initialTeam, dr
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
               </button>
             </div>
+          )}
+
+          {isCoach && (
+            <button
+              onClick={() => generatingInvite ? undefined : handleGenerateParentInvite()}
+              disabled={generatingInvite}
+              className="w-full bg-emerald-500/5 border border-emerald-500/30 rounded-[2rem] p-6 flex items-center justify-between hover:bg-emerald-500/10 transition-all active:scale-[0.99] disabled:opacity-60"
+            >
+              <div className="space-y-1 text-left">
+                <p className="text-[8px] font-black uppercase tracking-widest text-emerald-400/60">Ouder Portaal</p>
+                <p className="text-base font-black italic text-emerald-400">Genereer Uitnodigingslink</p>
+                <p className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Ouders kiezen zelf hun kind</p>
+              </div>
+              <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl">
+                {generatingInvite
+                  ? <div className="w-[18px] h-[18px] border-2 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin" />
+                  : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                }
+              </div>
+            </button>
           )}
 
           <div className="flex items-center justify-between px-2">
@@ -781,7 +826,43 @@ const TeamCalendar: React.FC<TeamCalendarProps> = ({ user, team: initialTeam, dr
       )}
 
       {showEventForm && (
-        <div className="fixed inset-0 z-[140] bg-black/95 backdrop-blur-2xl flex items-center justify-center p-6 animate-in zoom-in duration-300"><form onSubmit={handleCreateEvent} className="bg-[#0b1224] border border-ha-brand/30 p-10 rounded-[3rem] w-full max-w-lg shadow-3xl space-y-8 relative overflow-hidden"><div className="absolute top-0 right-0 w-32 h-32 bg-ha-brand/5 blur-3xl rounded-full"></div><div className="flex justify-between items-start relative z-10"><div className="space-y-1"><h3 className="text-3xl font-black italic uppercase text-white tracking-tighter leading-none">Command <span className="text-ha-brand">Scheduler</span></h3><p className="text-[9px] text-slate-500 font-black uppercase tracking-widest italic">Mission Parameters Initialization</p></div><button type="button" onClick={() => setShowEventForm(false)} className="p-4 bg-ha-bg border border-slate-800 rounded-2xl text-white hover:text-red-500 transition-colors shadow-xl"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div className="space-y-4 relative z-10"><input required type="text" placeholder="MISSION TITLE (E.G. TEAM PRACTICE)" value={newTitle} onChange={e => setNewTitle(e.target.value.toUpperCase())} className="w-full bg-ha-bg border border-slate-800 p-5 rounded-2xl text-xs text-white font-black uppercase tracking-widest outline-none focus:border-ha-brand shadow-inner" /><div className="grid grid-cols-2 gap-4"><input required type="date" value={newDate} onChange={e => setNewDate(e.target.value)} className="w-full bg-ha-bg border border-slate-800 p-5 rounded-2xl text-xs text-white font-black uppercase outline-none focus:border-ha-brand shadow-inner" /><input required type="time" value={newTime} onChange={e => setNewTime(e.target.value)} className="w-full bg-ha-bg border border-slate-800 p-5 rounded-2xl text-xs text-white font-black uppercase outline-none focus:border-ha-brand shadow-inner" /></div><input type="text" placeholder="LOCATION (TACTICAL GROUNDS)" value={newLocation} onChange={e => setNewLocation(e.target.value.toUpperCase())} className="w-full bg-ha-bg border border-slate-800 p-5 rounded-2xl text-xs text-white font-black uppercase tracking-widest outline-none focus:border-ha-brand shadow-inner" /><div className="grid grid-cols-3 gap-2">{['practice', 'game', 'other'].map(t => (<button key={t} type="button" onClick={() => setNewType(t as any)} className={`py-4 rounded-xl text-[8px] font-black uppercase tracking-widest border transition-all ${newType === t ? 'bg-indigo-600 border-indigo-400 text-white shadow-lg' : 'bg-ha-bg border-slate-900 text-slate-600'}`}>{t}</button>))}</div><div className="pt-4 border-t border-slate-900 space-y-4"><button type="button" onClick={() => setRepeatWeekly(!repeatWeekly)} className="flex items-center gap-3 group"><div className={`w-10 h-10 rounded-xl border-2 flex items-center justify-center transition-all ${repeatWeekly ? 'bg-ha-brand border-ha-brand text-slate-950' : 'border-slate-800 text-slate-800 group-hover:border-slate-600'}`}>{repeatWeekly && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="20 6 9 17 4 12"/></svg>}</div><span className="text-[10px] font-black uppercase tracking-widest text-slate-500 group-hover:text-slate-300">Repeat Mission Weekly</span></button>{repeatWeekly && (<div className="space-y-2 animate-in slide-in-from-top-2"><label className="text-[8px] font-black text-slate-600 uppercase tracking-widest ml-2">Iteration Count (Weeks)</label><input type="number" min="2" max="52" value={repeatCount} onChange={e => setRepeatCount(parseInt(e.target.value) || 1)} className="w-full bg-ha-bg border border-slate-800 p-4 rounded-xl text-xs text-ha-brand font-black outline-none focus:border-ha-brand" /></div>)}</div></div><button type="submit" className="w-full py-6 bg-cyan-600 text-white rounded-2xl font-black uppercase text-xs tracking-[0.4em] shadow-3xl active:scale-95 transition-all relative z-10">Deploy Mission Sequence</button></form></div>
+        <div className="fixed inset-0 z-[140] bg-black/95 backdrop-blur-2xl flex items-center justify-center p-6 animate-in zoom-in duration-300"><form onSubmit={handleCreateEvent} className="bg-[#0b1224] border border-ha-brand/30 p-10 rounded-[3rem] w-full max-w-lg shadow-3xl space-y-8 relative overflow-hidden"><div className="absolute top-0 right-0 w-32 h-32 bg-ha-brand/5 blur-3xl rounded-full"></div><div className="flex justify-between items-start relative z-10"><div className="space-y-1"><h3 className="text-3xl font-black italic uppercase text-white tracking-tighter leading-none">Command <span className="text-ha-brand">Scheduler</span></h3><p className="text-[9px] text-slate-500 font-black uppercase tracking-widest italic">Mission Parameters Initialization</p></div><button type="button" onClick={() => setShowEventForm(false)} className="p-4 bg-ha-bg border border-slate-800 rounded-2xl text-white hover:text-red-500 transition-colors shadow-xl"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div className="space-y-4 relative z-10"><input required type="text" placeholder="MISSION TITLE (E.G. TEAM PRACTICE)" value={newTitle} onChange={e => setNewTitle(e.target.value.toUpperCase())} className="w-full bg-ha-bg border border-slate-800 p-5 rounded-2xl text-xs text-white font-black uppercase tracking-widest outline-none focus:border-ha-brand shadow-inner" /><div className="grid grid-cols-2 gap-4"><input required type="date" value={newDate} onChange={e => setNewDate(e.target.value)} className="w-full bg-ha-bg border border-slate-800 p-5 rounded-2xl text-xs text-white font-black uppercase outline-none focus:border-ha-brand shadow-inner" /><input required type="time" value={newTime} onChange={e => setNewTime(e.target.value)} className="w-full bg-ha-bg border border-slate-800 p-5 rounded-2xl text-xs text-white font-black uppercase outline-none focus:border-ha-brand shadow-inner" /></div><input type="text" placeholder="LOCATION (TACTICAL GROUNDS)" value={newLocation} onChange={e => setNewLocation(e.target.value.toUpperCase())} className="w-full bg-ha-bg border border-slate-800 p-5 rounded-2xl text-xs text-white font-black uppercase tracking-widest outline-none focus:border-ha-brand shadow-inner" /><div className="grid grid-cols-3 gap-2">{['practice', 'game', 'other'].map(t => (<button key={t} type="button" onClick={() => setNewType(t as any)} className={`py-4 rounded-xl text-[8px] font-black uppercase tracking-widest border transition-all ${newType === t ? 'bg-indigo-600 border-indigo-400 text-white shadow-lg' : 'bg-ha-bg border-slate-900 text-slate-600'}`}>{t}</button>))}</div>{newType === 'game' && (<div className="grid grid-cols-2 gap-4 animate-in slide-in-from-top-2"><input type="text" placeholder="THUISPLOEG" value={newHomeTeam} onChange={e => setNewHomeTeam(e.target.value.toUpperCase())} className="w-full bg-ha-bg border border-indigo-500/30 p-5 rounded-2xl text-xs text-white font-black uppercase tracking-widest outline-none focus:border-indigo-500 shadow-inner" /><input type="text" placeholder="UITPLOEG" value={newAwayTeam} onChange={e => setNewAwayTeam(e.target.value.toUpperCase())} className="w-full bg-ha-bg border border-indigo-500/30 p-5 rounded-2xl text-xs text-white font-black uppercase tracking-widest outline-none focus:border-indigo-500 shadow-inner" /></div>)}<div className="pt-4 border-t border-slate-900 space-y-4"><button type="button" onClick={() => setRepeatWeekly(!repeatWeekly)} className="flex items-center gap-3 group"><div className={`w-10 h-10 rounded-xl border-2 flex items-center justify-center transition-all ${repeatWeekly ? 'bg-ha-brand border-ha-brand text-slate-950' : 'border-slate-800 text-slate-800 group-hover:border-slate-600'}`}>{repeatWeekly && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="20 6 9 17 4 12"/></svg>}</div><span className="text-[10px] font-black uppercase tracking-widest text-slate-500 group-hover:text-slate-300">Repeat Mission Weekly</span></button>{repeatWeekly && (<div className="space-y-2 animate-in slide-in-from-top-2"><label className="text-[8px] font-black text-slate-600 uppercase tracking-widest ml-2">Iteration Count (Weeks)</label><input type="number" min="2" max="52" value={repeatCount} onChange={e => setRepeatCount(parseInt(e.target.value) || 1)} className="w-full bg-ha-bg border border-slate-800 p-4 rounded-xl text-xs text-ha-brand font-black outline-none focus:border-ha-brand" /></div>)}</div></div><button type="submit" className="w-full py-6 bg-cyan-600 text-white rounded-2xl font-black uppercase text-xs tracking-[0.4em] shadow-3xl active:scale-95 transition-all relative z-10">Deploy Mission Sequence</button></form></div>
+      )}
+
+      {parentInviteLink && (
+        <div className="fixed inset-0 z-[160] bg-black/90 backdrop-blur-xl flex items-center justify-center p-6 animate-in zoom-in duration-300">
+          <div className="bg-[#0b1224] border border-emerald-500/30 p-10 rounded-[3rem] w-full max-w-md shadow-3xl space-y-6">
+            <div className="flex justify-between items-start">
+              <div className="space-y-1">
+                <h3 className="text-2xl font-black italic uppercase text-white tracking-tighter">Ouder <span className="text-emerald-400">Uitnodiging</span></h3>
+                <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Stuur deze link naar de ouder/voogd</p>
+              </div>
+              <button onClick={() => setParentInviteLink(null)} className="p-3 bg-ha-bg border border-slate-800 text-slate-500 rounded-xl hover:text-white transition-all">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <div className="bg-ha-bg border border-slate-800 rounded-2xl p-4 flex items-center gap-3">
+              <p className="flex-1 text-xs text-slate-400 font-mono break-all leading-relaxed">{parentInviteLink}</p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => { navigator.clipboard?.writeText(parentInviteLink); }}
+                className="flex-1 py-4 bg-emerald-600 text-white rounded-xl font-black uppercase text-[10px] tracking-widest active:scale-95 transition-all flex items-center justify-center gap-2"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                Kopieer Link
+              </button>
+              {navigator.share && (
+                <button
+                  onClick={() => navigator.share({ title: `${team.name} Ouder Portaal`, url: parentInviteLink })}
+                  className="p-4 bg-slate-900 border border-slate-800 text-slate-400 rounded-xl hover:text-white transition-all active:scale-95"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
       )}
 
       {showAssignForm && (

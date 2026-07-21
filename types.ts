@@ -365,6 +365,16 @@ export interface CalendarEvent {
   location?: string;
   description?: string;
   drillIds?: string[];
+  homeTeam?: string;
+  awayTeam?: string;
+  createdAt: number;
+}
+
+export interface ParentInvite {
+  token: string;
+  teamId: string;
+  teamName: string;
+  coachId: string;
   createdAt: number;
 }
 
