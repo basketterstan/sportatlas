@@ -81,6 +81,9 @@ const TeamCalendar: React.FC<TeamCalendarProps> = ({ user, team: initialTeam, dr
   const [repeatCount, setRepeatCount] = useState(1);
   const [parentInviteLink, setParentInviteLink] = useState<string | null>(null);
   const [generatingInvite, setGeneratingInvite] = useState(false);
+  const [externalFeedUrl, setExternalFeedUrl] = useState('');
+  const [showFeedSync, setShowFeedSync] = useState(false);
+  const [syncingFeed, setSyncingFeed] = useState(false);
   
   const [assignDrillId, setAssignDrillId] = useState('');
   const [assignDueDate, setAssignDueDate] = useState('');
@@ -470,7 +473,61 @@ const TeamCalendar: React.FC<TeamCalendarProps> = ({ user, team: initialTeam, dr
     }
   };
 
-  const availableTabs = isParent 
+  const parseIcal = (text: string) => {
+    const results: Array<{summary: string; date: string; time: string; location: string; homeTeam: string; awayTeam: string}> = [];
+    const blocks = text.split('BEGIN:VEVENT').slice(1);
+    for (const block of blocks) {
+      const get = (key: string) => {
+        const m = block.match(new RegExp(`^${key}[^:\\r\\n]*:(.+)$`, 'm'));
+        return m ? m[1].trim() : '';
+      };
+      const dtstart = get('DTSTART');
+      if (!dtstart || dtstart.length < 8) continue;
+      const year = dtstart.slice(0, 4), month = dtstart.slice(4, 6), day = dtstart.slice(6, 8);
+      const hasTime = dtstart.includes('T');
+      const hour = hasTime ? dtstart.slice(9, 11) : '00';
+      const min = hasTime ? dtstart.slice(11, 13) : '00';
+      const date = `${year}-${month}-${day}`;
+      const time = `${hour}:${min}`;
+      const summary = get('SUMMARY');
+      const location = get('LOCATION');
+      const dashIdx = summary.indexOf(' - ');
+      const homeTeam = dashIdx !== -1 ? summary.slice(0, dashIdx).trim() : summary;
+      const awayTeam = dashIdx !== -1 ? summary.slice(dashIdx + 3).trim() : '';
+      results.push({ summary, date, time, location, homeTeam, awayTeam });
+    }
+    return results;
+  };
+
+  const handleSyncExternalFeed = async () => {
+    if (!externalFeedUrl.trim() || !user) return;
+    setSyncingFeed(true);
+    try {
+      const httpUrl = externalFeedUrl.trim().replace(/^webcal:\/\//, 'https://');
+      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(httpUrl)}`;
+      const res = await fetch(proxyUrl);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const text = await res.text();
+      const parsed = parseIcal(text);
+      const today = new Date().toISOString().split('T')[0];
+      const future = parsed.filter(e => e.date >= today);
+      if (future.length === 0) { alert('Geen toekomstige wedstrijden gevonden in de kalender.'); return; }
+      const batch = writeBatch(db);
+      for (const evt of future) {
+        const ref = doc(collection(db, 'events'));
+        batch.set(ref, { teamId: team.id, title: evt.summary.toUpperCase(), date: evt.date, time: evt.time, type: 'game', location: evt.location || '', homeTeam: evt.homeTeam.toUpperCase(), awayTeam: evt.awayTeam.toUpperCase(), createdAt: Date.now() });
+      }
+      await batch.commit();
+      setShowFeedSync(false);
+      alert(`${future.length} wedstrijden geïmporteerd!`);
+    } catch (err: any) {
+      alert('Sync mislukt: ' + err.message);
+    } finally {
+      setSyncingFeed(false);
+    }
+  };
+
+  const availableTabs = isParent
     ? [{ id: 'schedule', label: 'Schedule', icon: '📅' }, { id: 'roster', label: 'Roster', icon: '👥' }]
     : [{ id: 'schedule', label: 'Schedule', icon: '📅' }, { id: 'locker-room', label: 'Locker Room', icon: '💬' }, { id: 'highlights', label: 'Highlights', icon: '🎬' }, { id: 'playbook', label: 'Playbook', icon: '📚' }, { id: 'roster', label: 'Roster', icon: '👥' }, { id: 'analysis', label: 'Vision', icon: '👁️' }];
 
@@ -532,6 +589,7 @@ const TeamCalendar: React.FC<TeamCalendarProps> = ({ user, team: initialTeam, dr
                 {isCoach && (
                   <div className="flex gap-3">
                     <button onClick={() => setShowMatchImport(true)} className="text-[9px] font-black text-indigo-400 uppercase tracking-widest border-b border-indigo-500/30 hover:text-indigo-300">Import Matches</button>
+                    <button onClick={() => setShowFeedSync(true)} className="text-[9px] font-black text-amber-400 uppercase tracking-widest border-b border-amber-500/30 hover:text-amber-300">Sync Kalender</button>
                     <button onClick={() => setShowEventForm(true)} className="text-[9px] font-black text-ha-brand uppercase tracking-widest border-b border-ha-brand/30 hover:text-ha-brand">+ New Mission</button>
                   </div>
                 )}
@@ -827,6 +885,42 @@ const TeamCalendar: React.FC<TeamCalendarProps> = ({ user, team: initialTeam, dr
 
       {showEventForm && (
         <div className="fixed inset-0 z-[140] bg-black/95 backdrop-blur-2xl flex items-center justify-center p-6 animate-in zoom-in duration-300"><form onSubmit={handleCreateEvent} className="bg-[#0b1224] border border-ha-brand/30 p-10 rounded-[3rem] w-full max-w-lg shadow-3xl space-y-8 relative overflow-hidden"><div className="absolute top-0 right-0 w-32 h-32 bg-ha-brand/5 blur-3xl rounded-full"></div><div className="flex justify-between items-start relative z-10"><div className="space-y-1"><h3 className="text-3xl font-black italic uppercase text-white tracking-tighter leading-none">Command <span className="text-ha-brand">Scheduler</span></h3><p className="text-[9px] text-slate-500 font-black uppercase tracking-widest italic">Mission Parameters Initialization</p></div><button type="button" onClick={() => setShowEventForm(false)} className="p-4 bg-ha-bg border border-slate-800 rounded-2xl text-white hover:text-red-500 transition-colors shadow-xl"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div className="space-y-4 relative z-10"><input required type="text" placeholder="MISSION TITLE (E.G. TEAM PRACTICE)" value={newTitle} onChange={e => setNewTitle(e.target.value.toUpperCase())} className="w-full bg-ha-bg border border-slate-800 p-5 rounded-2xl text-xs text-white font-black uppercase tracking-widest outline-none focus:border-ha-brand shadow-inner" /><div className="grid grid-cols-2 gap-4"><input required type="date" value={newDate} onChange={e => setNewDate(e.target.value)} className="w-full bg-ha-bg border border-slate-800 p-5 rounded-2xl text-xs text-white font-black uppercase outline-none focus:border-ha-brand shadow-inner" /><input required type="time" value={newTime} onChange={e => setNewTime(e.target.value)} className="w-full bg-ha-bg border border-slate-800 p-5 rounded-2xl text-xs text-white font-black uppercase outline-none focus:border-ha-brand shadow-inner" /></div><input type="text" placeholder="LOCATION (TACTICAL GROUNDS)" value={newLocation} onChange={e => setNewLocation(e.target.value.toUpperCase())} className="w-full bg-ha-bg border border-slate-800 p-5 rounded-2xl text-xs text-white font-black uppercase tracking-widest outline-none focus:border-ha-brand shadow-inner" /><div className="grid grid-cols-3 gap-2">{['practice', 'game', 'other'].map(t => (<button key={t} type="button" onClick={() => setNewType(t as any)} className={`py-4 rounded-xl text-[8px] font-black uppercase tracking-widest border transition-all ${newType === t ? 'bg-indigo-600 border-indigo-400 text-white shadow-lg' : 'bg-ha-bg border-slate-900 text-slate-600'}`}>{t}</button>))}</div>{newType === 'game' && (<div className="grid grid-cols-2 gap-4 animate-in slide-in-from-top-2"><input type="text" placeholder="THUISPLOEG" value={newHomeTeam} onChange={e => setNewHomeTeam(e.target.value.toUpperCase())} className="w-full bg-ha-bg border border-indigo-500/30 p-5 rounded-2xl text-xs text-white font-black uppercase tracking-widest outline-none focus:border-indigo-500 shadow-inner" /><input type="text" placeholder="UITPLOEG" value={newAwayTeam} onChange={e => setNewAwayTeam(e.target.value.toUpperCase())} className="w-full bg-ha-bg border border-indigo-500/30 p-5 rounded-2xl text-xs text-white font-black uppercase tracking-widest outline-none focus:border-indigo-500 shadow-inner" /></div>)}<div className="pt-4 border-t border-slate-900 space-y-4"><button type="button" onClick={() => setRepeatWeekly(!repeatWeekly)} className="flex items-center gap-3 group"><div className={`w-10 h-10 rounded-xl border-2 flex items-center justify-center transition-all ${repeatWeekly ? 'bg-ha-brand border-ha-brand text-slate-950' : 'border-slate-800 text-slate-800 group-hover:border-slate-600'}`}>{repeatWeekly && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="20 6 9 17 4 12"/></svg>}</div><span className="text-[10px] font-black uppercase tracking-widest text-slate-500 group-hover:text-slate-300">Repeat Mission Weekly</span></button>{repeatWeekly && (<div className="space-y-2 animate-in slide-in-from-top-2"><label className="text-[8px] font-black text-slate-600 uppercase tracking-widest ml-2">Iteration Count (Weeks)</label><input type="number" min="2" max="52" value={repeatCount} onChange={e => setRepeatCount(parseInt(e.target.value) || 1)} className="w-full bg-ha-bg border border-slate-800 p-4 rounded-xl text-xs text-ha-brand font-black outline-none focus:border-ha-brand" /></div>)}</div></div><button type="submit" className="w-full py-6 bg-cyan-600 text-white rounded-2xl font-black uppercase text-xs tracking-[0.4em] shadow-3xl active:scale-95 transition-all relative z-10">Deploy Mission Sequence</button></form></div>
+      )}
+
+      {showFeedSync && (
+        <div className="fixed inset-0 z-[160] bg-black/90 backdrop-blur-xl flex items-center justify-center p-6 animate-in zoom-in duration-300">
+          <div className="bg-[#0b1224] border border-amber-500/30 p-10 rounded-[3rem] w-full max-w-md shadow-3xl space-y-6">
+            <div className="flex justify-between items-start">
+              <div className="space-y-1">
+                <h3 className="text-2xl font-black italic uppercase text-white tracking-tighter">Kalender <span className="text-amber-400">Sync</span></h3>
+                <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Importeer wedstrijden van externe kalender (VBL, enz.)</p>
+              </div>
+              <button onClick={() => setShowFeedSync(false)} className="p-3 bg-ha-bg border border-slate-800 text-slate-500 rounded-xl hover:text-white transition-all">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <div className="space-y-3">
+              <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Plak je webcal:// of https:// kalender URL</p>
+              <input
+                type="text"
+                value={externalFeedUrl}
+                onChange={e => setExternalFeedUrl(e.target.value)}
+                placeholder="webcal://vblcal.wisseq.eu/vblcalsync/..."
+                className="w-full bg-ha-bg border border-amber-500/30 p-5 rounded-2xl text-xs text-white font-mono outline-none focus:border-amber-500 shadow-inner"
+              />
+            </div>
+            <button
+              onClick={handleSyncExternalFeed}
+              disabled={syncingFeed || !externalFeedUrl.trim()}
+              className="w-full py-4 bg-amber-600 text-white rounded-xl font-black uppercase text-[10px] tracking-widest active:scale-95 transition-all disabled:opacity-60 flex items-center justify-center gap-2"
+            >
+              {syncingFeed
+                ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Bezig...</>
+                : <><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Importeer Wedstrijden</>
+              }
+            </button>
+          </div>
+        </div>
       )}
 
       {parentInviteLink && (
